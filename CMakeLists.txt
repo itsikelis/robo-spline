@@ -10,4 +10,3 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 target_compile_options(${PROJECT_NAME} PUBLIC "-Wall;-O3")
-
