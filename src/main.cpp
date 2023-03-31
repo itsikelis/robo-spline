@@ -25,6 +25,11 @@ public:
         return _a1 + (2 * _a2 * t) + (3 * _a3 * t * t);
     };
 
+    Eigen::Vector2d acceleration(double t)
+    {
+        return (2 * _a2) + (6 * _a3 * t);
+    };
+
 protected:
     Vec _a0, _a1, _a2, _a3;
 };
@@ -47,6 +52,11 @@ int main()
     std::cout << "Velocities:" << std::endl;
     for (double t = 0.; t <= 1.; t += 0.1) {
         std::cout << pol.velocity(t).transpose() << std::endl;
+    }
+
+    std::cout << "Accelerations:" << std::endl;
+    for (double t = 0.; t <= 1.; t += 0.1) {
+        std::cout << pol.acceleration(t).transpose() << std::endl;
     }
 
     return 0;
