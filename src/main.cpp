@@ -37,7 +37,7 @@ int main()
     Eigen::Vector2d x1 = {1., 1.};
     Eigen::Vector2d v1 = {1., 0.};
 
-    auto pol = CubicHermitePolynomial<2>(x0, x1, v0, v1);
+    auto pol = CubicHermitePolynomial<2>(x0, v0, x1, v1);
 
     std::cout << "Positions:" << std::endl;
     for (double t = 0.; t <= 1.; t += 0.1) {
