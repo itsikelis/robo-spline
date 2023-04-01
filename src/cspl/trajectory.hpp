@@ -13,6 +13,7 @@ namespace cspl
         {
             PolynomialTimePair pair{initial_pol, duration};
             _vec.push_back(pair);
+            _total_duration = duration;
         }
 
         void add_point(const Vec &next_pos, const Vec &next_vel, double duration)
@@ -24,6 +25,58 @@ namespace cspl
             PolynomialTimePair pair{pol, duration};
 
             _vec.push_back(pair);
+            _total_duration += duration;
+        }
+
+        Vec position(double t)
+        {
+            double sum = 0;
+            double prev_sum = 0;
+            for (unsigned int i = 0; i < _vec.size(); i++)
+            {
+                // Add current polynomial's duration to sum and check if t belongs to this interval.
+                sum += _vec[i].duration;
+                if (t <= sum)
+                {
+                    double t_norm = (t - prev_sum) / _vec[i].duration;
+                    return _vec[i].pol.position(t_norm);
+                }
+                prev_sum = sum;
+            }
+        }
+
+        Vec velocity(double t)
+        {
+            double sum = 0;
+            double prev_sum = 0;
+            for (unsigned int i = 0; i < _vec.size(); i++)
+            {
+                // Add current polynomial's duration to sum and check if t belongs to this interval.
+                sum += _vec[i].duration;
+                if (t <= sum)
+                {
+                    double t_norm = (t - prev_sum) / _vec[i].duration;
+                    return _vec[i].pol.velocity(t_norm);
+                }
+                prev_sum = sum;
+            }
+        }
+
+        Vec acceleration(double t)
+        {
+            double sum = 0;
+            double prev_sum = 0;
+            for (unsigned int i = 0; i < _vec.size(); i++)
+            {
+                // Add current polynomial's duration to sum and check if t belongs to this interval.
+                sum += _vec[i].duration;
+                if (t <= sum)
+                {
+                    double t_norm = (t - prev_sum) / _vec[i].duration;
+                    return _vec[i].pol.acceleration(t_norm);
+                }
+                prev_sum = sum;
+            }
         }
 
     protected:
@@ -34,5 +87,6 @@ namespace cspl
         };
 
         std::vector<PolynomialTimePair> _vec;
+        double _total_duration;
     };
 } // namespace cspl
