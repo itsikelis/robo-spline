@@ -22,12 +22,12 @@ namespace cspl {
         Vec velocity(double t)
         {
             return _a1 + (2 * _a2 * t) + (3 * _a3 * t * t);
-        };
+        }
 
         Vec acceleration(double t)
         {
             return (2 * _a2) + (6 * _a3 * t);
-        };
+        }
 
     protected:
         Vec _a0, _a1, _a2, _a3;

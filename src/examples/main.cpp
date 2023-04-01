@@ -18,9 +18,9 @@ int main()
 
     auto pol = cspl::CubicHermitePolynomial3D(x0, v0, x1, v1);
 
-    auto traj = cspl::Trajectory<3>();
+    auto traj = cspl::Trajectory<3>(pol, duration);
 
-    traj.push_back(pol, duration);
+    traj.add_point(x2, v2, duration);
 
     // std::cout << "Positions:" << std::endl;
     // for (double t = 0.; t <= duration; t += 0.1 * duration) {
