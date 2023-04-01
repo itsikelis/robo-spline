@@ -1,10 +1,10 @@
 #include <Eigen/Dense>
 
 namespace cspl {
-    template <unsigned int DIM>
+    template <unsigned int D>
     class CubicHermitePolynomial {
     public:
-        using Vec = Eigen::Matrix<double, DIM, 1>;
+        using Vec = Eigen::Matrix<double, D, 1>;
 
         CubicHermitePolynomial(const Vec& initial_position, const Vec& initial_velocity, const Vec& final_position, const Vec& final_velocity)
         {

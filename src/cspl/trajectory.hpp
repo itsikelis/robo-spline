@@ -3,13 +3,13 @@
 
 namespace cspl
 {
-    template <unsigned int DIM>
+    template <unsigned int D>
     class Trajectory
     {
     public:
-        using Vec = Eigen::Matrix<double, DIM, 1>;
+        using Vec = Eigen::Matrix<double, D, 1>;
 
-        Trajectory(const CubicHermitePolynomial<DIM> &initial_pol, double duration)
+        Trajectory(const CubicHermitePolynomial<D> &initial_pol, double duration)
         {
             PolynomialTimePair pair{initial_pol, duration};
             _vec.push_back(pair);
@@ -82,7 +82,7 @@ namespace cspl
     protected:
         struct PolynomialTimePair
         {
-            CubicHermitePolynomial<DIM> pol;
+            CubicHermitePolynomial<D> pol;
             double duration;
         };
 
