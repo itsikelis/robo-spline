@@ -7,7 +7,7 @@ namespace cspl
     class Trajectory
     {
     public:
-        using Vec = Eigen::Matrix<double, D, 1>;
+        using Vec = typename Eigen::Matrix<double, D, 1>;
 
         Trajectory(const CubicHermitePolynomial<D> &initial_pol, double duration)
         {
