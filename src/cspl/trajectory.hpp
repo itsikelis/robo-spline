@@ -43,6 +43,8 @@ namespace cspl
                 }
                 prev_sum = sum;
             }
+            // If t > trajectory duration, return final trajectory point.
+            return _vec.back().pol.position(1);
         }
 
         Vec velocity(double t)
@@ -60,6 +62,8 @@ namespace cspl
                 }
                 prev_sum = sum;
             }
+            // If t > trajectory duration, return final trajectory point.
+            return _vec.back().pol.velocity(1);
         }
 
         Vec acceleration(double t)
@@ -77,6 +81,8 @@ namespace cspl
                 }
                 prev_sum = sum;
             }
+            // If t > trajectory duration, return final trajectory point.
+            return _vec.back().pol.acceleration(1);
         }
 
     protected:
