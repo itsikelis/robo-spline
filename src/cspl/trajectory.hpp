@@ -115,4 +115,7 @@ namespace cspl {
         Vec _last_pos, _last_vel;
         std::vector<PolynomialTimePair> _polynomials;
     };
+
+    using Trajectory2D = Trajectory<2>;
+    using Trajectory3D = Trajectory<3>;
 } // namespace cspl

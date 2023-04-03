@@ -5,19 +5,11 @@
 
 int main()
 {
-    Eigen::Vector3d x0 = {0., 0., 0.};
-    Eigen::Vector3d v0 = {1., 0., 1.};
-
-    Eigen::Vector3d x1 = {1., 1., 0.};
-    Eigen::Vector3d v1 = {1., 1., 1.};
-
-    Eigen::Vector3d x2 = {2., 2., 0.};
-    Eigen::Vector3d v2 = {2., 2., 1.};
-
-    cspl::Trajectory<3> traj;
-    traj.add_point(x0, v0);
-    traj.add_point(x1, v1, 1.);
-    traj.add_point(x2, v2, 0.5);
+    cspl::Trajectory3D traj;
+    traj.add_point({0., 0., 0.}, {1., 0., 1.});
+    traj.add_point({1., 1., 0.}, {1., 1., 1.}, 1.);
+    traj.add_point({2., 2., 0.}, {2., 2., 1.}, 0.5);
+    traj.add_point({0., 0., 0.}, {0., 0., 0.}, 1.);
 
     double total_duration = traj.total_duration();
 
