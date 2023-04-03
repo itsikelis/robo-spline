@@ -12,7 +12,7 @@ namespace cspl {
         {
             Vector p(D * 4);
             p << initial_position, initial_velocity, p1, p2;
-            set_params(p, regular);
+            set_node_params(p, regular);
         }
 
         Vec position(double t) const
@@ -30,7 +30,37 @@ namespace cspl {
             return (2 * _a2) + (6 * _a3 * t);
         }
 
-        Vector params_nodes() const
+        Vector coeff_params() const
+        {
+            Vector params(D * 4);
+            params << _a0, _a1, _a2, _a3;
+
+            return params;
+        }
+
+        void set_coeff_params(const Vector& x, bool regular = true)
+        {
+            // assume x.size() == D*4
+            _a0 = x.head(D);
+            _a1 = x.segment(D, D);
+            _a2 = x.segment(2 * D, D);
+            _a3 = x.tail(D);
+
+            if (regular) {
+                _p0 = position(0.);
+                _v0 = velocity(0.);
+                _p1 = position(0.);
+                _v1 = velocity(1.);
+            }
+            else {
+                _p0 = position(0.);
+                _v0 = velocity(0.);
+                _p1 = acceleration(0.);
+                _v1 = position(1.);
+            }
+        }
+
+        Vector node_params() const
         {
             Vector params(D * 4);
             params << _p0, _v0, _p1, _v1;
@@ -38,7 +68,7 @@ namespace cspl {
             return params;
         }
 
-        void set_params(const Vector& x, bool regular = true)
+        void set_node_params(const Vector& x, bool regular = true)
         {
             // assume x.size() == D*4
             _p0 = x.head(D);
