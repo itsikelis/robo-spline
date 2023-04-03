@@ -134,6 +134,72 @@ namespace cspl {
             return jac;
         }
 
+        Matrix jac_vel(double t, bool regular = true) const
+        {
+            const double t2 = t * t;
+            const double t3 = t * t2;
+            Matrix jac = Matrix::Zero(D, D * 4);
+            if (regular) {
+                for (unsigned int i = 0; i < D; i++) {
+                    // initial position
+                    jac(i, i) = -6 * t2 - 6 * t;
+                    // initial velocity
+                    jac(i, D + i) = 3 * t2 - 4 * t;
+                    // final position
+                    jac(i, 2 * D + i) = -6 * t2 + 6 * t;
+                    // final velocity
+                    jac(i, 3 * D + i) = 3 * t2 - 2 * t + 1;
+                }
+            }
+            else {
+                for (unsigned int i = 0; i < D; i++) {
+                    // initial position
+                    jac(i, i) = -3 * t2;
+                    // initial velocity
+                    jac(i, D + i) = -3 * t2 + 1;
+                    // initial acceleration
+                    jac(i, 2 * D + i) = -1.5 * t2 + t;
+                    // final position
+                    jac(i, 3 * D + i) = 3 * t2;
+                }
+            }
+
+            return jac;
+        }
+
+        Matrix jac_acc(double t, bool regular = true) const
+        {
+            const double t2 = t * t;
+            const double t3 = t * t2;
+            Matrix jac = Matrix::Zero(D, D * 4);
+            if (regular) {
+                for (unsigned int i = 0; i < D; i++) {
+                    // initial position
+                    jac(i, i) = -12 * t - 6;
+                    // initial velocity
+                    jac(i, D + i) = 6 * t - 4;
+                    // final position
+                    jac(i, 2 * D + i) = -12 * t + 6;
+                    // final velocity
+                    jac(i, 3 * D + i) = 6 * t - 2;
+                }
+            }
+            else {
+                for (unsigned int i = 0; i < D; i++) {
+                    // initial position
+                    jac(i, i) = -6 * t;
+                    // initial velocity
+                    jac(i, D + i) = -6 * t;
+                    // initial acceleration
+                    jac(i, 2 * D + i) = -3 * t + 1;
+                    // final position
+                    jac(i, 3 * D + i) = 6;
+                }
+            }
+
+            return jac;
+        }
+
     protected:
         Vec _a0, _a1, _a2, _a3;
         Vec _p0, _v0, _p1, _v1;
