@@ -25,20 +25,17 @@ int main()
     duration = 2 * duration;
 
     std::cout << "Positions:" << std::endl;
-    for (double t = 0.; t <= duration; t += 0.1 * duration)
-    {
+    for (double t = 0.; t <= duration; t += 0.1 * duration) {
         std::cout << traj.position(t).transpose() << std::endl;
     }
 
     std::cout << "Velocities:" << std::endl;
-    for (double t = 0.; t <= duration; t += 0.1 * duration)
-    {
+    for (double t = 0.; t <= duration; t += 0.1 * duration) {
         std::cout << traj.velocity(t).transpose() << std::endl;
     }
 
     std::cout << "Accelerations:" << std::endl;
-    for (double t = 0.; t <= duration; t += 0.1 * duration)
-    {
+    for (double t = 0.; t <= duration; t += 0.1 * duration) {
         std::cout << traj.acceleration(t).transpose() << std::endl;
     }
 

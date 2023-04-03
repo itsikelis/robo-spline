@@ -1,22 +1,20 @@
-#include <vector>
 #include <Eigen/Dense>
+#include <vector>
 
-namespace cspl
-{
+namespace cspl {
     template <unsigned int D>
-    class Trajectory
-    {
+    class Trajectory {
     public:
         using Vec = typename Eigen::Matrix<double, D, 1>;
 
-        Trajectory(const CubicHermitePolynomial<D> &initial_pol, double duration)
+        Trajectory(const CubicHermitePolynomial<D>& initial_pol, double duration)
         {
             PolynomialTimePair pair{initial_pol, duration};
             _vec.push_back(pair);
             _total_duration = duration;
         }
 
-        void add_point(const Vec &next_pos, const Vec &next_vel, double duration)
+        void add_point(const Vec& next_pos, const Vec& next_vel, double duration)
         {
             auto prev_pos = _vec.back().pol.position(1); // REVIEW: Maybe store initial and last positions in polynomial object to avoid calling position(1)?
             auto prev_vel = _vec.back().pol.velocity(1);
@@ -32,12 +30,10 @@ namespace cspl
         {
             double sum = 0;
             double prev_sum = 0;
-            for (unsigned int i = 0; i < _vec.size(); i++)
-            {
+            for (unsigned int i = 0; i < _vec.size(); i++) {
                 // Add current polynomial's duration to sum and check if t belongs to this interval.
                 sum += _vec[i].duration;
-                if (t <= sum)
-                {
+                if (t <= sum) {
                     double t_norm = (t - prev_sum) / _vec[i].duration;
                     return _vec[i].pol.position(t_norm);
                 }
@@ -51,12 +47,10 @@ namespace cspl
         {
             double sum = 0;
             double prev_sum = 0;
-            for (unsigned int i = 0; i < _vec.size(); i++)
-            {
+            for (unsigned int i = 0; i < _vec.size(); i++) {
                 // Add current polynomial's duration to sum and check if t belongs to this interval.
                 sum += _vec[i].duration;
-                if (t <= sum)
-                {
+                if (t <= sum) {
                     double t_norm = (t - prev_sum) / _vec[i].duration;
                     return _vec[i].pol.velocity(t_norm);
                 }
@@ -70,12 +64,10 @@ namespace cspl
         {
             double sum = 0;
             double prev_sum = 0;
-            for (unsigned int i = 0; i < _vec.size(); i++)
-            {
+            for (unsigned int i = 0; i < _vec.size(); i++) {
                 // Add current polynomial's duration to sum and check if t belongs to this interval.
                 sum += _vec[i].duration;
-                if (t <= sum)
-                {
+                if (t <= sum) {
                     double t_norm = (t - prev_sum) / _vec[i].duration;
                     return _vec[i].pol.acceleration(t_norm);
                 }
@@ -86,8 +78,7 @@ namespace cspl
         }
 
     protected:
-        struct PolynomialTimePair
-        {
+        struct PolynomialTimePair {
             CubicHermitePolynomial<D> pol;
             double duration;
         };
