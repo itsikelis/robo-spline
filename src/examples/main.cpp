@@ -35,5 +35,8 @@ int main()
         std::cout << (i + 1) << ": " << pols[i + 1].polynomial.acceleration(0.).transpose() << std::endl;
     }
 
+    std::cout << "Jacobian/Derivative" << std::endl;
+    std::cout << pols[0].polynomial.jac_pos(0.125) << std::endl;
+
     return 0;
 }
