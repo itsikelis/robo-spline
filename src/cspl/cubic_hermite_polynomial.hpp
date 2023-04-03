@@ -10,31 +10,9 @@ namespace cspl {
 
         CubicHermitePolynomial(const Vec& initial_position, const Vec& initial_velocity, const Vec& p1, const Vec& p2, bool regular = true)
         {
-            if (regular) {
-                // Regular constructor with initial and final positions and velocities
-                Vec final_position = p1; // This is for clarity, we could avoid copies here
-                Vec final_velocity = p2;
-
-                _a0 = initial_position;
-                _a1 = initial_velocity;
-                _a2 = 3. * final_position - 3. * initial_position - 2. * initial_velocity - final_velocity;
-                _a3 = -2. * final_position + 2. * initial_position + initial_velocity + final_velocity;
-            }
-            else {
-                // Constructor with initial position, velocity, acceleration and final position
-                Vec initial_acceleration = p1; // This is for clarity, we could avoid copies here
-                Vec final_position = p2;
-
-                _a0 = initial_position;
-                _a1 = initial_velocity;
-                _a2 = initial_acceleration / 2.;
-                _a3 = final_position - _a2 - _a1 - _a0;
-            }
-
-            _p0 = initial_position;
-            _v0 = initial_velocity;
-            _p1 = p1;
-            _v1 = p2;
+            Vector p(D * 4);
+            p << initial_position, initial_velocity, p1, p2;
+            set_params(p, regular);
         }
 
         Vec position(double t) const
@@ -58,6 +36,39 @@ namespace cspl {
             params << _p0, _v0, _p1, _v1;
 
             return params;
+        }
+
+        void set_params(const Vector& x, bool regular = true)
+        {
+            // assume x.size() == D*4
+            _p0 = x.head(D);
+            _v0 = x.segment(D, D);
+            _p1 = x.segment(2 * D, D);
+            _v1 = x.tail(D);
+
+            Vec initial_position = _p0; // This is for clarity, we could avoid copies here
+            Vec initial_velocity = _v0;
+
+            if (regular) {
+                // Regular constructor with initial and final positions and velocities
+                Vec final_position = _p1; // This is for clarity, we could avoid copies here
+                Vec final_velocity = _v1;
+
+                _a0 = initial_position;
+                _a1 = initial_velocity;
+                _a2 = 3. * final_position - 3. * initial_position - 2. * initial_velocity - final_velocity;
+                _a3 = -2. * final_position + 2. * initial_position + initial_velocity + final_velocity;
+            }
+            else {
+                // Constructor with initial position, velocity, acceleration and final position
+                Vec initial_acceleration = _p1; // This is for clarity, we could avoid copies here
+                Vec final_position = _v1;
+
+                _a0 = initial_position;
+                _a1 = initial_velocity;
+                _a2 = initial_acceleration / 2.;
+                _a3 = final_position - _a2 - _a1 - _a0;
+            }
         }
 
         Matrix jac_pos(double t, bool regular = true) const
