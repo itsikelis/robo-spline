@@ -107,7 +107,8 @@ namespace cspl {
             return _polynomials.back().polynomial.acceleration(1.);
         }
 
-        const std::vector<PolynomialTimePair> polynomials() const { return _polynomials; }
+        const std::vector<PolynomialTimePair>& polynomials() const { return _polynomials; }
+        std::vector<PolynomialTimePair>& polynomials() { return _polynomials; }
 
     protected:
         static constexpr double _epsilon = 1e-12;
