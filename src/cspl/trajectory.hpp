@@ -16,15 +16,29 @@ namespace cspl {
 
         Trajectory() : _total_duration(-1.) {}
 
+        // Initialize a trajectory given the polynomial time durations.
+        Trajectory(Eigen::VectorXd durations) : _total_duration(-1.)
+        {
+            // Fill _polynomials vector with dummy polynomials (all-zeros).
+            for (int i = 0; i < durations.size(); i++)
+            {
+                _polynomials.push_back({{0, 0, 0, 0}, durations(i)});
+            }
+        }
+
+        // Get total duration of trajectory.
         double total_duration() const { return _total_duration; }
 
+        // Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
         void add_point(const Vec& next_pos, const Vec& next_vel, double duration = 0.)
         {
+            // Check if it's the first point added to trajectory.
             if (_total_duration < 0.) {
                 _total_duration = 0.;
                 _last_pos = next_pos;
                 _last_vel = next_vel;
 
+                // Initial point begins at time 0.
                 if (duration > 0.) {
                     std::cerr << "You cannot have a duration > 0. for the initial point!" << std::endl;
                 }
@@ -38,6 +52,7 @@ namespace cspl {
             _last_vel = next_vel;
         }
 
+        // Adds a new target position and calculate a position-velocity-acceleration polynomial to get there.
         void add_point(const Vec& next_pos, double duration = 0.)
         {
             if (_total_duration < 0.) {
@@ -53,6 +68,7 @@ namespace cspl {
             _last_vel = _polynomials.back().polynomial.velocity(1.);
         }
 
+        // Get position at time t.
         Vec position(double t) const
         {
             double sum = 0;
@@ -71,6 +87,7 @@ namespace cspl {
             return _polynomials.back().polynomial.position(1.);
         }
 
+        // Get velocity at time t.
         Vec velocity(double t) const
         {
             double sum = 0;
@@ -89,6 +106,7 @@ namespace cspl {
             return _polynomials.back().polynomial.velocity(1.);
         }
 
+        // Get acceleration at time t.
         Vec acceleration(double t) const
         {
             double sum = 0;
@@ -107,16 +125,19 @@ namespace cspl {
             return _polynomials.back().polynomial.acceleration(1.);
         }
 
+        // Get polynomials vector (const ref).
         const std::vector<PolynomialTimePair>& polynomials() const { return _polynomials; }
+        // Get polynomials vector (pass-by-reference to modify outside class and avoid copies).
         std::vector<PolynomialTimePair>& polynomials() { return _polynomials; }
 
     protected:
         static constexpr double _epsilon = 1e-12;
-        double _total_duration;
-        Vec _last_pos, _last_vel;
-        std::vector<PolynomialTimePair> _polynomials;
+        double _total_duration;                         // Total duration of trajectory.
+        Vec _last_pos, _last_vel;                       // Target position and velocity of last point entered.
+        std::vector<PolynomialTimePair> _polynomials;   // Polynomials and their time durations stored in and std::vector. 
     };
 
+    // Aliases.
     using Trajectory2D = Trajectory<2>;
     using Trajectory3D = Trajectory<3>;
 } // namespace cspl
