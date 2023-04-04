@@ -15,21 +15,25 @@ namespace cspl {
             set_node_params(p, regular);
         }
 
+        // Get position at normalised time in [0-1].
         Vec position(double t) const
         {
             return _a0 + (_a1 * t) + (_a2 * t * t) + (_a3 * t * t * t);
         }
 
+        // Get velocity at normalised time in [0-1].
         Vec velocity(double t) const
         {
             return _a1 + (2 * _a2 * t) + (3 * _a3 * t * t);
         }
 
+        // Get acceleration at normalised time in [0-1].
         Vec acceleration(double t) const
         {
             return (2 * _a2) + (6 * _a3 * t);
         }
 
+        // Get polynomial parameters.
         Vector coeff_params() const
         {
             Vector params(D * 4);
@@ -38,6 +42,7 @@ namespace cspl {
             return params;
         }
 
+        // Set polynomial parameters manually.
         void set_coeff_params(const Vector& x, bool regular = true)
         {
             // assume x.size() == D*4
@@ -60,6 +65,7 @@ namespace cspl {
             }
         }
 
+        // Get intial/target points (positions and velocities).
         Vector node_params() const
         {
             Vector params(D * 4);

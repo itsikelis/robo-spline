@@ -9,19 +9,20 @@ namespace cspl {
     public:
         using Vec = typename Eigen::Matrix<double, D, 1>;
 
+        // Struct to store each polynomial in chain and its corresponding duration.
         struct PolynomialTimePair {
             CubicHermitePolynomial<D> polynomial;
             double duration;
         };
 
+        // Default constructor.
         Trajectory() : _total_duration(-1.) {}
 
         // Initialize a trajectory given the polynomial time durations.
         Trajectory(Eigen::VectorXd durations) : _total_duration(-1.)
         {
             // Fill _polynomials vector with dummy polynomials (all-zeros).
-            for (int i = 0; i < durations.size(); i++)
-            {
+            for (int i = 0; i < durations.size(); i++) {
                 _polynomials.push_back({{0, 0, 0, 0}, durations(i)});
             }
         }
@@ -67,6 +68,55 @@ namespace cspl {
             _last_pos = next_pos;
             _last_vel = _polynomials.back().polynomial.velocity(1.);
         }
+
+        // Set polynomial parameters
+        // full for position-velocity at each point, !full for position-velocity at start-end and positions in-between.
+        // regular for position-velocity at start-end, !regular for position-velocity-acceleration at start, position at end.
+        void set_params(Eigen::VectorXd params, bool full = true)
+        {
+            if (full) {
+                for (int i = 0; i < _polynomials.size(); i += 2) {
+                    double x0 = params.segment(i * 2 * D, D);
+                    double v0 = params.segment(i * 2 * D + D, D);
+                    double x1 = params.segment((i + 1) * 2 * D, D);
+                    double v1 = params.segment((i + 1) * 2 * D + D, D);
+
+                    _polynomials.at(i).polynomial.set_node_node_params({x0, v0, x1, v1});
+                }
+            }
+            else {
+                auto x0 = params.segment(0, D);
+                auto v0 = params.segment(D, D);
+                auto x1 = params.segment(2 * D, D);
+                auto acc = _polynomials.at(0).acceleration(1.);
+                _polynomials.at(0).polynomial.set_node_node_params({x0, v0, acc, x1}, false);
+
+                // Fill in-between points.
+                for (int i = 1; i < _polynomials.size() - 1; i += 2) {
+                    auto x0 = params.segment(i * 2 * D, D);
+                    auto x1 = params.segment(i * 2 * D + D, D);
+
+                    auto v0 = _polynomials.at(i - 1).polynomial.velocity(1.);
+                    auto acc = _polynomials.at(i - 1).polynomial.acceleration(1.);
+
+                    _polynomials.at(i).polynomial.set_node_node_params({x0, v0, acc, x1}, false);
+                }
+
+                // Configure last polynomial.
+
+                // second-to-last position begins 3D positions from end of params.
+                auto x0 = params.segment(params.size() - 3 * D, D);
+                // get second-to-last velocity from second-to-last polynomial.
+                auto v0 = _polynomials.at(_polynomials.size() - 2).polynomial.velocity(1.);
+
+                auto x1 = params.segment(params.size() - 2 * D, D);
+                auto v1 = params.segment(params.size() - D, D);
+
+                _polynomials.back().polynomial.set_node_node_params({x0, v0, x1, v1});
+            }
+        }
+
+        // TODO: Get params and Jacobian.
 
         // Get position at time t.
         Vec position(double t) const
@@ -132,9 +182,9 @@ namespace cspl {
 
     protected:
         static constexpr double _epsilon = 1e-12;
-        double _total_duration;                         // Total duration of trajectory.
-        Vec _last_pos, _last_vel;                       // Target position and velocity of last point entered.
-        std::vector<PolynomialTimePair> _polynomials;   // Polynomials and their time durations stored in and std::vector. 
+        double _total_duration; // Total duration of trajectory.
+        Vec _last_pos, _last_vel; // Target position and velocity of last point entered.
+        std::vector<PolynomialTimePair> _polynomials; // Polynomials and their time durations stored in and std::vector.
     };
 
     // Aliases.
