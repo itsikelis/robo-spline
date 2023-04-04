@@ -142,25 +142,25 @@ namespace cspl {
             if (regular) {
                 for (unsigned int i = 0; i < D; i++) {
                     // initial position
-                    jac(i, i) = -6 * t2 - 6 * t;
+                    jac(i, i) = -6. * t + 6. * t2;
                     // initial velocity
-                    jac(i, D + i) = 3 * t2 - 4 * t;
+                    jac(i, D + i) = 1. - 4. * t + 3. * t2;
                     // final position
-                    jac(i, 2 * D + i) = -6 * t2 + 6 * t;
+                    jac(i, 2 * D + i) = 6. * t - 6. * t2;
                     // final velocity
-                    jac(i, 3 * D + i) = 3 * t2 - 2 * t + 1;
+                    jac(i, 3 * D + i) = -2. * t + 3. * t2;
                 }
             }
             else {
                 for (unsigned int i = 0; i < D; i++) {
                     // initial position
-                    jac(i, i) = -3 * t2;
+                    jac(i, i) = -3. * t2;
                     // initial velocity
-                    jac(i, D + i) = -3 * t2 + 1;
+                    jac(i, D + i) = 1. - 3. * t2;
                     // initial acceleration
-                    jac(i, 2 * D + i) = -1.5 * t2 + t;
+                    jac(i, 2 * D + i) = t - 1.5 * t2;
                     // final position
-                    jac(i, 3 * D + i) = 3 * t2;
+                    jac(i, 3 * D + i) = 3. * t2;
                 }
             }
 
@@ -175,25 +175,25 @@ namespace cspl {
             if (regular) {
                 for (unsigned int i = 0; i < D; i++) {
                     // initial position
-                    jac(i, i) = -12 * t - 6;
+                    jac(i, i) = -6. + 12. * t;
                     // initial velocity
-                    jac(i, D + i) = 6 * t - 4;
+                    jac(i, D + i) = -4. + 6. * t;
                     // final position
-                    jac(i, 2 * D + i) = -12 * t + 6;
+                    jac(i, 2 * D + i) = 6. - 12. * t;
                     // final velocity
-                    jac(i, 3 * D + i) = 6 * t - 2;
+                    jac(i, 3 * D + i) = -2. + 6. * t;
                 }
             }
             else {
                 for (unsigned int i = 0; i < D; i++) {
                     // initial position
-                    jac(i, i) = -6 * t;
+                    jac(i, i) = -6. * t;
                     // initial velocity
-                    jac(i, D + i) = -6 * t;
+                    jac(i, D + i) = -6. * t;
                     // initial acceleration
-                    jac(i, 2 * D + i) = -3 * t + 1;
+                    jac(i, 2 * D + i) = 1. - 3. * t;
                     // final position
-                    jac(i, 3 * D + i) = 6;
+                    jac(i, 3 * D + i) = 6. * t;
                 }
             }
 
