@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <string>
 
 namespace cspl {
     template <unsigned int D>
@@ -66,10 +67,39 @@ namespace cspl {
         }
 
         // Get intial/target points (positions and velocities).
-        Vector node_params() const
+        Vector node_params(String str = "full") const
         {
-            Vector params(D * 4);
-            params << _p0, _v0, _p1, _v1;
+            if (str == "full") {
+                Vector params(D * 4);
+                params << _p0, _v0, _p1, _v1;
+            }
+            else if (str == "initial") {
+                Vector params(D * 2);
+                params << _p0, _v0;
+            }
+            else if (str == "target") {
+                Vector params(D * 2);
+                params << _p1, _v1;
+            }
+            else if (str == "x0") {
+                Vector params(D);
+                params << _p0;
+            }
+            else if (str == "v0") {
+                Vector params(D);
+                params << _v0;
+            }
+            else if (str == "x1") {
+                Vector params(D);
+                params << _p1;
+            }
+            else if (str == "v1") {
+                Vector params(D);
+                params << _v1;
+            }
+            else {
+                std::cerr << "Non-valid polynomial parameter requested!" << std::endl;
+            }
 
             return params;
         }
