@@ -32,24 +32,24 @@ namespace cspl {
             return static_cast<const Polynomial*>(this)->coeffs();
         }
 
-        VectorX nodes() const // Get polynomial parameters (initial, final).
+        VectorX points_all() const // Get polynomial points (initial, final).
         {
-            return static_cast<const Polynomial*>(this)->nodes();
+            return static_cast<const Polynomial*>(this)->points_all();
         }
 
-        VectorX nodes_initial() const // Get initial polynomial parameters (initial, final).
+        VectorX points_initial() const // Get initial polynomial points (initial, final).
         {
-            return static_cast<const Polynomial*>(this)->nodes_initial();
+            return static_cast<const Polynomial*>(this)->points_initial();
         }
 
-        VectorX nodes_target() const // Get final polynomial parameters (initial, final).
+        VectorX points_target() const // Get final polynomial points (initial, final).
         {
-            return static_cast<const Polynomial*>(this)->nodes_target();
+            return static_cast<const Polynomial*>(this)->points_target();
         }
 
-        void set_nodes(const VectorX& x) // Set the polynomial parameters (initial, final).
+        void set_points(const VectorX& x) // Set the polynomial points (initial, final).
         {
-            static_cast<Polynomial*>(this)->set_nodes(x);
+            static_cast<Polynomial*>(this)->set_points(x);
         }
 
         void set_coeffs(const VectorX& x) // Set the polynomial coefficients.

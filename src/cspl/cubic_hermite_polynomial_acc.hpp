@@ -17,7 +17,7 @@ namespace cspl {
         {
             VectorX p(D * 4);
             p << p0, v0, a0, p1;
-            set_nodes(p);
+            set_points(p);
         }
 
         // Get position at normalised time in [0-1].
@@ -47,27 +47,27 @@ namespace cspl {
         }
 
         // Get initial polynomial parameters (initial, final).
-        VectorX nodes_initial() const
+        VectorX points_initial() const
         {
-            VectorX nodes(D * 3);
-            nodes << _p0, _v0, _a0;
-            return nodes;
+            VectorX points(D * 3);
+            points << _p0, _v0, _a0;
+            return points;
         }
 
         // Get final polynomial parameters (initial, final).
-        VectorX nodes_target() const
+        VectorX points_target() const
         {
-            VectorX nodes(D);
-            nodes << _p1;
-            return nodes;
+            VectorX points(D);
+            points << _p1;
+            return points;
         }
 
         // Get polynomial parameters (initial, final).
-        VectorX nodes() const
+        VectorX points_all() const
         {
-            VectorX nodes(D * 4);
-            nodes << _p0, _v0, _a0, _p1;
-            return nodes;
+            VectorX points(D * 4);
+            points << _p0, _v0, _a0, _p1;
+            return points;
         }
 
         // Set polynomial parameters manually.
@@ -86,7 +86,7 @@ namespace cspl {
         }
 
         // Set polynomial initial position, velocity, acceleration and final position.
-        void set_nodes(const VectorX& x)
+        void set_points(const VectorX& x)
         {
             // assume x.size() == D*4
             _p0 = x.head(D);
