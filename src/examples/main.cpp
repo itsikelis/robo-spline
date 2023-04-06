@@ -1,6 +1,5 @@
 #include <iostream>
 
-// #include <cspl/cubic_hermite_polynomial.hpp>
 #include <cspl/cubic_hermite_polynomial_acc.hpp>
 #include <cspl/cubic_hermite_polynomial_reg.hpp>
 // #include <cspl/trajectory.hpp>
