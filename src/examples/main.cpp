@@ -2,7 +2,7 @@
 
 #include <cspl/cubic_hermite_polynomial_acc.hpp>
 #include <cspl/cubic_hermite_polynomial_reg.hpp>
-// #include <cspl/trajectory.hpp>
+#include <cspl/trajectory.hpp>
 
 int main()
 {
