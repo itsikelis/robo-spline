@@ -6,11 +6,11 @@
 
 namespace cspl {
     template <unsigned int D>
-    class CubicHermitePolynomialAcc : ICubicHermitePolynomial<D> {
+    class CubicHermitePolynomialAcc : ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>> {
     public:
-        using VectorD = typename ICubicHermitePolynomial<D>::VectorD;
-        using VectorX = typename ICubicHermitePolynomial<D>::VectorX;
-        using MatrixX = typename ICubicHermitePolynomial<D>::MatrixX;
+        using VectorD = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::VectorD;
+        using VectorX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::VectorX;
+        using MatrixX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::MatrixX;
 
         // p0, v0, a0 initial position, velocity and acceleration, p1: final position
         CubicHermitePolynomialAcc(const VectorD& p0, const VectorD& v0, const VectorD& a0, const VectorD& p1)
@@ -21,25 +21,25 @@ namespace cspl {
         }
 
         // Get position at normalised time in [0-1].
-        VectorD position(double t) const override
+        VectorD position(double t) const
         {
             return _c0 + (_c1 * t) + (_c2 * t * t) + (_c3 * t * t * t);
         }
 
         // Get velocity at normalised time in [0-1].
-        VectorD velocity(double t) const override
+        VectorD velocity(double t) const
         {
             return _c1 + (2 * _c2 * t) + (3 * _c3 * t * t);
         }
 
         // Get acceleration at normalised time in [0-1].
-        VectorD acceleration(double t) const override
+        VectorD acceleration(double t) const
         {
             return (2 * _c2) + (6 * _c3 * t);
         }
 
         // Get polynomial coefficients.
-        VectorX coeffs() const override
+        VectorX coeffs() const
         {
             VectorX coeffs(D * 4);
             coeffs << _c0, _c1, _c2, _c3;
@@ -47,7 +47,7 @@ namespace cspl {
         }
 
         // Get initial polynomial parameters (initial, final).
-        VectorX nodes_initial() const override
+        VectorX nodes_initial() const
         {
             VectorX nodes(D * 3);
             nodes << _p0, _v0, _a0;
@@ -55,7 +55,7 @@ namespace cspl {
         }
 
         // Get final polynomial parameters (initial, final).
-        VectorX nodes_target() const override
+        VectorX nodes_target() const
         {
             VectorX nodes(D);
             nodes << _p1;
@@ -63,7 +63,7 @@ namespace cspl {
         }
 
         // Get polynomial parameters (initial, final).
-        VectorX nodes() const override
+        VectorX nodes() const
         {
             VectorX nodes(D * 4);
             nodes << _p0, _v0, _a0, _p1;
@@ -71,7 +71,7 @@ namespace cspl {
         }
 
         // Set polynomial parameters manually.
-        void set_coeffs(const VectorX& x) override
+        void set_coeffs(const VectorX& x)
         {
             // assume x.size() == D*4
             _c0 = x.head(D);
@@ -86,7 +86,7 @@ namespace cspl {
         }
 
         // Set polynomial initial position, velocity, acceleration and final position.
-        void set_nodes(const VectorX& x) override
+        void set_nodes(const VectorX& x)
         {
             // assume x.size() == D*4
             _p0 = x.head(D);
@@ -101,7 +101,7 @@ namespace cspl {
         }
 
         // TODO : Jacobians.
-        MatrixX jac_pos(double t) const override
+        MatrixX jac_pos(double t) const
         {
             const double t2 = t * t;
             const double t3 = t * t2;
@@ -121,7 +121,7 @@ namespace cspl {
             return jac;
         }
 
-        MatrixX jac_vel(double t) const override
+        MatrixX jac_vel(double t) const
         {
             const double t2 = t * t;
             MatrixX jac = MatrixX::Zero(D, D * 4);
@@ -140,7 +140,7 @@ namespace cspl {
             return jac;
         }
 
-        MatrixX jac_acc(double t) const override
+        MatrixX jac_acc(double t) const
         {
             MatrixX jac = MatrixX::Zero(D, D * 4);
 
