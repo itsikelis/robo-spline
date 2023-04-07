@@ -1,17 +1,18 @@
 #pragma once
 
-#include <cspl/i_cubic_hermite_polynomial.hpp>
+#include <Eigen/Dense>
 
 namespace cspl {
+    // Interface for the polynomial class.
     template <unsigned int D>
-    class CubicHermitePolynomialReg : public ICubicHermitePolynomial<D, CubicHermitePolynomialReg<D>> {
+    class CubicHermitePolynomial {
     public:
-        using VectorD = typename ICubicHermitePolynomial<D, CubicHermitePolynomialReg<D>>::VectorD;
-        using VectorX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialReg<D>>::VectorX;
-        using MatrixX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialReg<D>>::MatrixX;
+        using VectorD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
+        using VectorX = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
+        using MatrixX = Eigen::Matrix<double, -1, -1>; // M by N dimensional Matrix.
 
         // p0, v0 initial position and velocity, p1, v2: final position and velocity
-        CubicHermitePolynomialReg(const VectorD& p0, const VectorD& v0, const VectorD& p1, const VectorD& v1)
+        CubicHermitePolynomial(const VectorD& p0, const VectorD& v0, const VectorD& p1, const VectorD& v1)
         {
             VectorX p(D * 4);
             p << p0, v0, p1, v1;
@@ -45,7 +46,7 @@ namespace cspl {
         }
 
         // Get polynomial parameters (initial, final).
-        VectorX points_all() const
+        virtual VectorX points_all() const
         {
             VectorX points(D * 4);
             points << _p0, _v0, _p1, _v1;
@@ -53,7 +54,7 @@ namespace cspl {
         }
 
         // Get initial polynomial parameters (initial, final).
-        VectorX points_initial() const
+        virtual VectorX points_initial() const
         {
             VectorX points(D * 2);
             points << _p0, _v0;
@@ -61,7 +62,7 @@ namespace cspl {
         }
 
         // Get final polynomial parameters (initial, final).
-        VectorX points_target() const
+        virtual VectorX points_target() const
         {
             VectorX points(D * 2);
             points << _p1, _v1;
@@ -69,7 +70,7 @@ namespace cspl {
         }
 
         // Set polynomial initial and final positions and velocities.
-        void set_points(const VectorX& x)
+        virtual void set_points(const VectorX& x)
         {
             // assume x.size() == D*4
             _p0 = x.head(D); // initial position
@@ -84,7 +85,7 @@ namespace cspl {
         }
 
         // Set polynomial parameters manually.
-        void set_coeffs(const VectorX& x)
+        virtual void set_coeffs(const VectorX& x)
         {
             // assume x.size() == D*4
             _c0 = x.head(D);
@@ -99,7 +100,7 @@ namespace cspl {
         }
 
         // get position jacobian
-        MatrixX jac_pos(double t) const
+        virtual MatrixX jac_pos(double t) const
         {
             const double t2 = t * t;
             const double t3 = t * t2;
@@ -120,7 +121,7 @@ namespace cspl {
         }
 
         // get velocity jacobian
-        MatrixX jac_vel(double t) const
+        virtual MatrixX jac_vel(double t) const
         {
             const double t2 = t * t;
             MatrixX jac = MatrixX::Zero(D, D * 4);
@@ -140,7 +141,7 @@ namespace cspl {
         }
 
         // get acceleration jacobian
-        MatrixX jac_acc(double t) const
+        virtual MatrixX jac_acc(double t) const
         {
             MatrixX jac = MatrixX::Zero(D, D * 4);
 
@@ -160,9 +161,11 @@ namespace cspl {
 
     protected:
         VectorD _c0, _c1, _c2, _c3; // polynomial coefficients
-        VectorD _p0, _v0, _p1, _v1; // initial and final positions and velocities
+        VectorD _p0, _v0, _p1, _v1; // points
+
+        CubicHermitePolynomial() {}
     };
 
-    using CubicHermitePolynomialReg2D = CubicHermitePolynomialReg<2>;
-    using CubicHermitePolynomialReg3D = CubicHermitePolynomialReg<3>;
+    using CubicHermitePolynomialReg2D = CubicHermitePolynomial<2>;
+    using CubicHermitePolynomialReg3D = CubicHermitePolynomial<3>;
 } // namespace cspl

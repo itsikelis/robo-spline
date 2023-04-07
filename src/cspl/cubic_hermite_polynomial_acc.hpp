@@ -1,105 +1,79 @@
 #pragma once
 
-#include <cspl/i_cubic_hermite_polynomial.hpp>
+#include <cspl/cubic_hermite_polynomial.hpp>
 
 namespace cspl {
     template <unsigned int D>
-    class CubicHermitePolynomialAcc : ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>> {
+    class CubicHermitePolynomialAcc : public CubicHermitePolynomial<D> {
     public:
-        using VectorD = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::VectorD;
-        using VectorX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::VectorX;
-        using MatrixX = typename ICubicHermitePolynomial<D, CubicHermitePolynomialAcc<D>>::MatrixX;
+        using VectorD = typename CubicHermitePolynomial<D>::VectorD;
+        using VectorX = typename CubicHermitePolynomial<D>::VectorX;
+        using MatrixX = typename CubicHermitePolynomial<D>::MatrixX;
 
         // p0, v0, a0 initial position, velocity and acceleration, p1: final position
-        CubicHermitePolynomialAcc(const VectorD& p0, const VectorD& v0, const VectorD& a0, const VectorD& p1)
+        CubicHermitePolynomialAcc(const VectorD& p0, const VectorD& v0, const VectorD& a0, const VectorD& p1) : CubicHermitePolynomial<D>()
         {
             VectorX p(D * 4);
             p << p0, v0, a0, p1;
-            set_points(p);
-        }
-
-        // Get position at normalised time in [0-1].
-        VectorD position(double t) const
-        {
-            return _c0 + (_c1 * t) + (_c2 * t * t) + (_c3 * t * t * t);
-        }
-
-        // Get velocity at normalised time in [0-1].
-        VectorD velocity(double t) const
-        {
-            return _c1 + (2 * _c2 * t) + (3 * _c3 * t * t);
-        }
-
-        // Get acceleration at normalised time in [0-1].
-        VectorD acceleration(double t) const
-        {
-            return (2 * _c2) + (6 * _c3 * t);
-        }
-
-        // Get polynomial coefficients.
-        VectorX coeffs() const
-        {
-            VectorX coeffs(D * 4);
-            coeffs << _c0, _c1, _c2, _c3;
-            return coeffs;
+            this->set_points(p);
         }
 
         // Get initial polynomial parameters (initial, final).
-        VectorX points_initial() const
+        VectorX points_initial() const override
         {
             VectorX points(D * 3);
-            points << _p0, _v0, _a0;
+            points << this->_p0, this->_v0, this->_v1; // _v1 is treated as a0
             return points;
         }
 
         // Get final polynomial parameters (initial, final).
-        VectorX points_target() const
+        VectorX points_target() const override
         {
             VectorX points(D);
-            points << _p1;
+            points << this->_p1;
             return points;
         }
 
         // Get polynomial parameters (initial, final).
-        VectorX points_all() const
+        VectorX points_all() const override
         {
             VectorX points(D * 4);
-            points << _p0, _v0, _a0, _p1;
+            points << this->_p0, this->_v0, this->_v1, this->_p1; // _v1 is treated as a0
             return points;
         }
 
         // Set polynomial parameters manually.
-        void set_coeffs(const VectorX& x)
+        void set_coeffs(const VectorX& x) override
         {
             // assume x.size() == D*4
-            _c0 = x.head(D);
-            _c1 = x.segment(D, D);
-            _c2 = x.segment(2 * D, D);
-            _c3 = x.tail(D);
+            this->_c0 = x.head(D);
+            this->_c1 = x.segment(D, D);
+            this->_c2 = x.segment(2 * D, D);
+            this->_c3 = x.tail(D);
 
-            _p0 = position(0.);
-            _v0 = velocity(0.);
-            _a0 = acceleration(1.);
-            _p1 = position(1.);
+            this->_p0 = this->position(0.);
+            this->_v0 = this->velocity(0.);
+            this->_v1 = this->acceleration(1.); // _v1 is treated as a0
+            this->_p1 = this->position(1.);
         }
 
         // Set polynomial initial position, velocity, acceleration and final position.
-        void set_points(const VectorX& x)
+        void set_points(const VectorX& x) override
         {
             // assume x.size() == D*4
-            _p0 = x.head(D);
-            _v0 = x.segment(D, D);
-            _a0 = x.segment(2 * D, D);
-            _p1 = x.tail(D);
+            this->_p0 = x.head(D);
+            this->_v0 = x.segment(D, D);
+            this->_v1 = x.segment(2 * D, D); // _v1 is treated as a0
+            this->_p1 = x.tail(D);
 
-            _c0 = _p0;
-            _c1 = _v0;
-            _c2 = _a0 / 2.;
-            _c3 = _p1 - _c2 - _c1 - _c0;
+            this->_c0 = this->_p0;
+            this->_c1 = this->_v0;
+            this->_c2 = this->_v1 / 2.; // _v1 is treated as a0
+            this->_c3 = this->_p1 - this->_c2 - this->_c1 - this->_c0;
         }
 
         // TODO : Jacobians.
-        MatrixX jac_pos(double t) const
+        MatrixX jac_pos(double t) const override
         {
             const double t2 = t * t;
             const double t3 = t * t2;
@@ -119,7 +93,7 @@ namespace cspl {
             return jac;
         }
 
-        MatrixX jac_vel(double t) const
+        MatrixX jac_vel(double t) const override
         {
             const double t2 = t * t;
             MatrixX jac = MatrixX::Zero(D, D * 4);
@@ -138,7 +112,7 @@ namespace cspl {
             return jac;
         }
 
-        MatrixX jac_acc(double t) const
+        MatrixX jac_acc(double t) const override
         {
             MatrixX jac = MatrixX::Zero(D, D * 4);
 
@@ -155,10 +129,6 @@ namespace cspl {
 
             return jac;
         }
-
-    protected:
-        VectorD _c0, _c1, _c2, _c3; // polynomial coefficients
-        VectorD _p0, _v0, _a0, _p1; // initial and final positions and velocities
     };
 
     using CubicHermitePolynomialAcc2D = CubicHermitePolynomialAcc<2>;
