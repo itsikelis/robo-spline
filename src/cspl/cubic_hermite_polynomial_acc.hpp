@@ -1,8 +1,6 @@
 #pragma once
 
-#include "i_cubic_hermite_polynomial.hpp"
-
-#include <Eigen/Dense>
+#include <cspl/i_cubic_hermite_polynomial.hpp>
 
 namespace cspl {
     template <unsigned int D>

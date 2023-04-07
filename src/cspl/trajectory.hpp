@@ -1,7 +1,9 @@
 #include <Eigen/Dense>
-#include <iostream>
 
-#include "i_cubic_hermite_polynomial.hpp"
+#include <iostream>
+#include <vector>
+
+#include <cspl/i_cubic_hermite_polynomial.hpp>
 
 namespace cspl {
     template <unsigned int D>
@@ -80,7 +82,7 @@ namespace cspl {
         }
 
         // Get position at time t.
-        Vec position(double t) const
+        VectorD position(double t) const
         {
             double sum = 0;
             double prev_sum = 0;

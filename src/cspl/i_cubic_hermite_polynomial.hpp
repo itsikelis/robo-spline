@@ -2,9 +2,8 @@
 
 #include <Eigen/Dense>
 
-// Interface for the polynomial class.
-
 namespace cspl {
+    // Interface for the polynomial class.
     template <unsigned int D, typename Polynomial>
     class ICubicHermitePolynomial {
     public:
