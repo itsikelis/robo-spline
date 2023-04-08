@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include <cspl/cubic_hermite_polynomial.hpp>
@@ -17,7 +18,7 @@ namespace cspl {
 
         // Struct to store each polynomial trajectory and its corresponding duration.
         struct PolynomialTimePair {
-            CubicHermitePolynomial<D> polynomial;
+            std::shared_ptr<CubicHermitePolynomial<D>> polynomial;
             double duration;
         };
 
@@ -30,9 +31,9 @@ namespace cspl {
             // Fill _polynomial_pairs vector with dummy polynomials (all-zeros).
             for (int i = 0; i < durations.size(); i++) {
                 if (all_regular || i == 0 || i == (durations.size() - 1))
-                    _polynomial_pairs.push_back({CubicHermitePolynomial<D>{}, durations[i]});
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(), durations[i]});
                 else
-                    _polynomial_pairs.push_back({CubicHermitePolynomialAcc<D>{}, durations[i]});
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(), durations[i]});
                 _total_duration += durations[i];
             }
         }
@@ -56,7 +57,7 @@ namespace cspl {
                 return;
             }
 
-            _polynomial_pairs.push_back({CubicHermitePolynomial<D>{_last_pos, _last_vel, next_pos, next_vel}, duration});
+            _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(_last_pos, _last_vel, next_pos, next_vel), duration});
             _total_duration += duration;
 
             _last_pos = next_pos;
@@ -72,14 +73,18 @@ namespace cspl {
                 return;
             }
 
-            VectorD a0 = _polynomial_pairs.back().polynomial.acceleration(1.);
+            VectorD a0;
+            if (_polynomial_pairs.size() == 0) // We assume zero initial acceleration!
+                a0 = VectorD::Zero();
+            else
+                a0 = _polynomial_pairs.back().polynomial->acceleration(1.);
 
-            _polynomial_pairs.push_back({CubicHermitePolynomialAcc<D>{_last_pos, _last_vel, a0, next_pos}, duration});
+            _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(_last_pos, _last_vel, a0, next_pos), duration});
 
             _total_duration += duration;
 
             _last_pos = next_pos;
-            _last_vel = _polynomial_pairs.back().polynomial.velocity(1.);
+            _last_vel = _polynomial_pairs.back().polynomial->velocity(1.);
         }
 
         // Get position at time t.
@@ -92,13 +97,13 @@ namespace cspl {
                 sum += _polynomial_pairs[i].duration;
                 if (t <= (sum + _epsilon)) {
                     double t_norm = (t - prev_sum) / _polynomial_pairs[i].duration;
-                    return _polynomial_pairs[i].polynomial.position(t_norm);
+                    return _polynomial_pairs[i].polynomial->position(t_norm);
                 }
                 prev_sum = sum;
             }
 
             // If t > trajectory duration, return final trajectory point.
-            return _polynomial_pairs.back().polynomial.position(1.);
+            return _polynomial_pairs.back().polynomial->position(1.);
         }
 
         // Get velocity at time t.
@@ -111,13 +116,13 @@ namespace cspl {
                 sum += _polynomial_pairs[i].duration;
                 if (t <= (sum + _epsilon)) {
                     double t_norm = (t - prev_sum) / _polynomial_pairs[i].duration;
-                    return _polynomial_pairs[i].polynomial.velocity(t_norm);
+                    return _polynomial_pairs[i].polynomial->velocity(t_norm);
                 }
                 prev_sum = sum;
             }
 
             // If t > trajectory duration, return final trajectory point.
-            return _polynomial_pairs.back().polynomial.velocity(1.);
+            return _polynomial_pairs.back().polynomial->velocity(1.);
         }
 
         // Get acceleration at time t.
@@ -130,13 +135,13 @@ namespace cspl {
                 sum += _polynomial_pairs[i].duration;
                 if (t <= (sum + _epsilon)) {
                     double t_norm = (t - prev_sum) / _polynomial_pairs[i].duration;
-                    return _polynomial_pairs[i].polynomial.acceleration(t_norm);
+                    return _polynomial_pairs[i].polynomial->acceleration(t_norm);
                 }
                 prev_sum = sum;
             }
 
             // If t > trajectory duration, return final trajectory point.
-            return _polynomial_pairs.back().polynomial.acceleration(1.);
+            return _polynomial_pairs.back().polynomial->acceleration(1.);
         }
 
         // Get polynomials vector (const ref).

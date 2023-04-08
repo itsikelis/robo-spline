@@ -30,12 +30,18 @@ int main()
     std::cout << "Compare Accelerations:" << std::endl;
     auto pols = traj.polynomials();
     for (size_t i = 0; i < pols.size() - 1; i++) {
-        std::cout << i << ": " << pols[i].polynomial.acceleration(1.).transpose() << std::endl;
-        std::cout << (i + 1) << ": " << pols[i + 1].polynomial.acceleration(0.).transpose() << std::endl;
+        std::cout << i << ": " << pols[i].polynomial->acceleration(1.).transpose() << std::endl;
+        std::cout << (i + 1) << ": " << pols[i + 1].polynomial->acceleration(0.).transpose() << std::endl;
     }
 
     std::cout << "Jacobian/Derivative" << std::endl;
-    std::cout << pols[0].polynomial.jac_pos(0.125) << std::endl;
+    size_t idx = 0;
+    std::cout << pols[idx].polynomial->jac_pos(0.125) << std::endl
+              << std::endl;
+    std::cout << pols[idx].polynomial->jac_vel(0.125) << std::endl
+              << std::endl;
+    std::cout << pols[idx].polynomial->jac_acc(0.125) << std::endl
+              << std::endl;
 
     return 0;
 }
