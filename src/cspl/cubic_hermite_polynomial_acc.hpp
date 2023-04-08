@@ -53,7 +53,7 @@ namespace cspl {
 
             this->_p0 = this->position(0.);
             this->_v0 = this->velocity(0.);
-            this->_v1 = this->acceleration(1.); // _v1 is treated as a0
+            this->_v1 = this->acceleration(0.); // _v1 is treated as a0
             this->_p1 = this->position(1.);
         }
 
