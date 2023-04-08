@@ -34,13 +34,13 @@ int main()
         std::cout << (i + 1) << ": " << pols[i + 1].polynomial->acceleration(0.).transpose() << std::endl;
     }
 
-    std::cout << "Jacobian/Derivative" << std::endl;
+    std::cout << "Derivatives:" << std::endl;
     size_t idx = 0;
-    std::cout << pols[idx].polynomial->jac_pos(0.125) << std::endl
+    std::cout << pols[idx].polynomial->deriv_pos(0.125).transpose() << std::endl
               << std::endl;
-    std::cout << pols[idx].polynomial->jac_vel(0.125) << std::endl
+    std::cout << pols[idx].polynomial->deriv_vel(0.125).transpose() << std::endl
               << std::endl;
-    std::cout << pols[idx].polynomial->jac_acc(0.125) << std::endl
+    std::cout << pols[idx].polynomial->deriv_acc(0.125).transpose() << std::endl
               << std::endl;
 
     return 0;

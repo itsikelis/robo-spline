@@ -99,64 +99,58 @@ namespace cspl {
             _v1 = velocity(1.);
         }
 
-        // get position jacobian
-        virtual MatrixX jac_pos(double t) const
+        // get position derivative
+        virtual VectorX deriv_pos(double t) const
         {
             const double t2 = t * t;
             const double t3 = t * t2;
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = 1. - 3. * t2 + 2. * t3;
-                // initial velocity
-                jac(i, D + i) = 1. * t - 2. * t2 + 1. * t3;
-                // final position
-                jac(i, 2 * D + i) = 3. * t2 - 2. * t3;
-                // final velocity
-                jac(i, 3 * D + i) = -1. * t2 + 1. * t3;
-            }
+            // initial position
+            deriv[0] = 1. - 3. * t2 + 2. * t3;
+            // initial velocity
+            deriv[1] = 1. * t - 2. * t2 + 1. * t3;
+            // final position
+            deriv[2] = 3. * t2 - 2. * t3;
+            // final velocity
+            deriv[3] = -1. * t2 + 1. * t3;
 
-            return jac;
+            return deriv;
         }
 
-        // get velocity jacobian
-        virtual MatrixX jac_vel(double t) const
+        // get velocity derivative
+        virtual VectorX deriv_vel(double t) const
         {
             const double t2 = t * t;
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = -6. * t + 6. * t2;
-                // initial velocity
-                jac(i, D + i) = 1. - 4. * t + 3. * t2;
-                // final position
-                jac(i, 2 * D + i) = 6. * t - 6. * t2;
-                // final velocity
-                jac(i, 3 * D + i) = -2. * t + 3. * t2;
-            }
+            // initial position
+            deriv[0] = -6. * t + 6. * t2;
+            // initial velocity
+            deriv[1] = 1. - 4. * t + 3. * t2;
+            // final position
+            deriv[2] = 6. * t - 6. * t2;
+            // final velocity
+            deriv[3] = -2. * t + 3. * t2;
 
-            return jac;
+            return deriv;
         }
 
-        // get acceleration jacobian
-        virtual MatrixX jac_acc(double t) const
+        // get acceleration derivative
+        virtual VectorX deriv_acc(double t) const
         {
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = -6. + 12. * t;
-                // initial velocity
-                jac(i, D + i) = -4. + 6. * t;
-                // final position
-                jac(i, 2 * D + i) = 6. - 12. * t;
-                // final velocity
-                jac(i, 3 * D + i) = -2. + 6. * t;
-            }
+            // initial position
+            deriv[0] = -6. + 12. * t;
+            // initial velocity
+            deriv[1] = -4. + 6. * t;
+            // final position
+            deriv[2] = 6. - 12. * t;
+            // final velocity
+            deriv[3] = -2. + 6. * t;
 
-            return jac;
+            return deriv;
         }
 
     protected:

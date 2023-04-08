@@ -72,62 +72,58 @@ namespace cspl {
             this->_c3 = this->_p1 - this->_c2 - this->_c1 - this->_c0;
         }
 
-        // TODO : Jacobians.
-        MatrixX jac_pos(double t) const override
+        // get position derivative
+        VectorX deriv_pos(double t) const override
         {
             const double t2 = t * t;
             const double t3 = t * t2;
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = 1. - 1. * t3;
-                // initial velocity
-                jac(i, D + i) = 1. * t - 1. * t3;
-                // initial acceleration
-                jac(i, 2 * D + i) = 0.5 * t2 - 0.5 * t3;
-                // final position
-                jac(i, 3 * D + i) = 1. * t3;
-            }
+            // initial position
+            deriv[0] = 1. - 1. * t3;
+            // initial velocity
+            deriv[1] = 1. * t - 1. * t3;
+            // initial acceleration
+            deriv[2] = 0.5 * t2 - 0.5 * t3;
+            // final position
+            deriv[3] = 1. * t3;
 
-            return jac;
+            return deriv;
         }
 
-        MatrixX jac_vel(double t) const override
+        // get velocity derivative
+        VectorX deriv_vel(double t) const override
         {
             const double t2 = t * t;
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = -3. * t2;
-                // initial velocity
-                jac(i, D + i) = 1. - 3. * t2;
-                // initial acceleration
-                jac(i, 2 * D + i) = t - 1.5 * t2;
-                // final position
-                jac(i, 3 * D + i) = 3. * t2;
-            }
+            // initial position
+            deriv[0] = -3. * t2;
+            // initial velocity
+            deriv[1] = 1. - 3. * t2;
+            // initial acceleration
+            deriv[2] = t - 1.5 * t2;
+            // final position
+            deriv[3] = 3. * t2;
 
-            return jac;
+            return deriv;
         }
 
-        MatrixX jac_acc(double t) const override
+        // get acceleration derivative
+        VectorX deriv_acc(double t) const override
         {
-            MatrixX jac = MatrixX::Zero(D, D * 4);
+            VectorX deriv = VectorX::Zero(4);
 
-            for (unsigned int i = 0; i < D; i++) {
-                // initial position
-                jac(i, i) = -6. * t;
-                // initial velocity
-                jac(i, D + i) = -6. * t;
-                // initial acceleration
-                jac(i, 2 * D + i) = 1. - 3. * t;
-                // final position
-                jac(i, 3 * D + i) = 6. * t;
-            }
+            // initial position
+            deriv[0] = -6. * t;
+            // initial velocity
+            deriv[1] = -6. * t;
+            // initial acceleration
+            deriv[2] = 1. - 3. * t;
+            // final position
+            deriv[3] = 6. * t;
 
-            return jac;
+            return deriv;
         }
     };
 
