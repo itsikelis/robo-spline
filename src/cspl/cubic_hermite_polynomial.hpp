@@ -7,70 +7,69 @@ namespace cspl {
     template <unsigned int D>
     class CubicHermitePolynomial {
     public:
-        using VectorD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
-        using VectorX = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
-        using MatrixX = Eigen::Matrix<double, -1, -1>; // M by N dimensional Matrix.
+        using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
+        using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
 
         // p0, v0 initial position and velocity, p1, v2: final position and velocity
-        CubicHermitePolynomial(const VectorD& p0, const VectorD& v0, const VectorD& p1, const VectorD& v1)
+        CubicHermitePolynomial(const VecD& p0, const VecD& v0, const VecD& p1, const VecD& v1)
         {
-            VectorX p(D * 4);
+            Vector p(D * 4);
             p << p0, v0, p1, v1;
             set_points(p);
         }
 
         // Get position at normalised time in [0-1].
-        VectorD position(double t) const
+        VecD position(double t) const
         {
             return _c0 + (_c1 * t) + (_c2 * t * t) + (_c3 * t * t * t);
         }
 
         // Get velocity at normalised time in [0-1].
-        VectorD velocity(double t) const
+        VecD velocity(double t) const
         {
             return _c1 + (2 * _c2 * t) + (3 * _c3 * t * t);
         }
 
         // Get acceleration at normalised time in [0-1].
-        VectorD acceleration(double t) const
+        VecD acceleration(double t) const
         {
             return (2 * _c2) + (6 * _c3 * t);
         }
 
         // Get polynomial coefficients.
-        VectorX coeffs() const
+        Vector coeffs() const
         {
-            VectorX coeffs(D * 4);
+            Vector coeffs(D * 4);
             coeffs << _c0, _c1, _c2, _c3;
             return coeffs;
         }
 
         // Get polynomial parameters (initial, final).
-        virtual VectorX points_all() const
+        virtual Vector points_all() const
         {
-            VectorX points(D * 4);
+            Vector points(D * 4);
             points << _p0, _v0, _p1, _v1;
             return points;
         }
 
         // Get initial polynomial parameters (initial, final).
-        virtual VectorX points_initial() const
+        virtual Vector points_initial() const
         {
-            VectorX points(D * 2);
+            Vector points(D * 2);
             points << _p0, _v0;
             return points;
         }
 
         // Get final polynomial parameters (initial, final).
-        virtual VectorX points_target() const
+        virtual Vector points_target() const
         {
-            VectorX points(D * 2);
+            Vector points(D * 2);
             points << _p1, _v1;
             return points;
         }
 
         // Set polynomial initial and final positions and velocities.
-        virtual void set_points(const VectorX& x)
+        virtual void set_points(const Vector& x)
         {
             // assume x.size() == D*4
             _p0 = x.head(D); // initial position
@@ -85,7 +84,7 @@ namespace cspl {
         }
 
         // Set polynomial parameters manually.
-        virtual void set_coeffs(const VectorX& x)
+        virtual void set_coeffs(const Vector& x)
         {
             // assume x.size() == D*4
             _c0 = x.head(D);
@@ -100,11 +99,11 @@ namespace cspl {
         }
 
         // get position derivative
-        virtual VectorX deriv_pos(double t) const
+        virtual Vector deriv_pos(double t) const
         {
             const double t2 = t * t;
             const double t3 = t * t2;
-            VectorX deriv = VectorX::Zero(4);
+            Vector deriv = Vector::Zero(4);
 
             // initial position
             deriv[0] = 1. - 3. * t2 + 2. * t3;
@@ -119,10 +118,10 @@ namespace cspl {
         }
 
         // get velocity derivative
-        virtual VectorX deriv_vel(double t) const
+        virtual Vector deriv_vel(double t) const
         {
             const double t2 = t * t;
-            VectorX deriv = VectorX::Zero(4);
+            Vector deriv = Vector::Zero(4);
 
             // initial position
             deriv[0] = -6. * t + 6. * t2;
@@ -137,9 +136,9 @@ namespace cspl {
         }
 
         // get acceleration derivative
-        virtual VectorX deriv_acc(double t) const
+        virtual Vector deriv_acc(double t) const
         {
-            VectorX deriv = VectorX::Zero(4);
+            Vector deriv = Vector::Zero(4);
 
             // initial position
             deriv[0] = -6. + 12. * t;
@@ -154,8 +153,8 @@ namespace cspl {
         }
 
     protected:
-        VectorD _c0, _c1, _c2, _c3; // polynomial coefficients
-        VectorD _p0, _v0, _p1, _v1; // points
+        VecD _c0, _c1, _c2, _c3; // polynomial coefficients
+        VecD _p0, _v0, _p1, _v1; // points
 
         CubicHermitePolynomial() {}
     };

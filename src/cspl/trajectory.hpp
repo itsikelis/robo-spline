@@ -11,10 +11,8 @@ namespace cspl {
     template <unsigned int D>
     class Trajectory {
     public:
-        using VectorD = typename CubicHermitePolynomial<D>::VectorD;
-        using VectorX = typename CubicHermitePolynomial<D>::VectorX;
-        using MatrixX = typename CubicHermitePolynomial<D>::MatrixX;
-        using VectorTimePair = Eigen::VectorXd;
+        using VecD = typename CubicHermitePolynomial<D>::VecD;
+        using Vector = typename CubicHermitePolynomial<D>::Vector;
 
         // Struct to store each polynomial trajectory and its corresponding duration.
         struct PolynomialTimePair {
@@ -26,14 +24,14 @@ namespace cspl {
         Trajectory() : _total_duration(-1.) {}
 
         // Initialize a trajectory given the polynomial time durations.
-        Trajectory(VectorX durations, bool all_regular = false) : _total_duration(0.)
+        Trajectory(const std::vector<double>& durations, bool all_regular = false) : _total_duration(0.)
         {
             // Fill _polynomial_pairs vector with dummy polynomials (all-zeros).
-            for (int i = 0; i < durations.size(); i++) {
-                if (all_regular || i == 0 || i == (durations.size() - 1))
-                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(), durations[i]});
+            for (size_t i = 0; i < durations.size(); i++) {
+                if (all_regular || i == (durations.size() - 1))
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
                 else
-                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(), durations[i]});
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
                 _total_duration += durations[i];
             }
         }
@@ -42,7 +40,7 @@ namespace cspl {
         double total_duration() const { return _total_duration; }
 
         // Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
-        void add_point(const VectorD& next_pos, const VectorD& next_vel, double duration = 0.)
+        void add_point(const VecD& next_pos, const VecD& next_vel, double duration = 0.)
         {
             // Check if it's the first point added to trajectory.
             if (_total_duration < 0.) {
@@ -65,7 +63,7 @@ namespace cspl {
         }
 
         // Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
-        void add_point(const VectorD& next_pos, double duration = 1.)
+        void add_point(const VecD& next_pos, double duration = 1.)
         {
             // Check if it's the first point added to trajectory.
             if (_total_duration < 0.) {
@@ -73,9 +71,9 @@ namespace cspl {
                 return;
             }
 
-            VectorD a0;
+            VecD a0;
             if (_polynomial_pairs.size() == 0) // We assume zero initial acceleration!
-                a0 = VectorD::Zero();
+                a0 = VecD::Zero();
             else
                 a0 = _polynomial_pairs.back().polynomial->acceleration(1.);
 
@@ -88,7 +86,7 @@ namespace cspl {
         }
 
         // Get position at time t.
-        VectorD position(double t) const
+        VecD position(double t) const
         {
             double sum = 0;
             double prev_sum = 0;
@@ -107,7 +105,7 @@ namespace cspl {
         }
 
         // Get velocity at time t.
-        VectorD velocity(double t) const
+        VecD velocity(double t) const
         {
             double sum = 0;
             double prev_sum = 0;
@@ -126,7 +124,7 @@ namespace cspl {
         }
 
         // Get acceleration at time t.
-        VectorD acceleration(double t) const
+        VecD acceleration(double t) const
         {
             double sum = 0;
             double prev_sum = 0;
@@ -152,7 +150,7 @@ namespace cspl {
     protected:
         static constexpr double _epsilon = 1e-12;
         double _total_duration; // Total duration of trajectory.
-        VectorD _last_pos, _last_vel; // Target position and velocity of last point entered.
+        VecD _last_pos, _last_vel; // Target position and velocity of last point entered.
         std::vector<PolynomialTimePair> _polynomial_pairs; // Polynomials and their time durations stored in and std::vector.
     };
 
