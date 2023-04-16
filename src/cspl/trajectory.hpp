@@ -8,22 +8,36 @@
 #include <cspl/cubic_hermite_polynomial_acc.hpp>
 
 namespace cspl {
+    /**
+     * @brief Trajectory class.
+     *
+     * @tparam D The dimensionality of the trajectory.
+     */
     template <unsigned int D>
     class Trajectory {
     public:
         using VecD = typename CubicHermitePolynomial<D>::VecD;
         using Vector = typename CubicHermitePolynomial<D>::Vector;
 
-        // Struct to store each polynomial trajectory and its corresponding duration.
+        /**
+         * @brief Struct to store each polynomial trajectory and its corresponding duration.
+         */
         struct PolynomialTimePair {
             std::shared_ptr<CubicHermitePolynomial<D>> polynomial;
             double duration;
         };
 
-        // Default constructor.
+        /**
+         * @brief Default constructor for Trajectory class.
+         */
         Trajectory() : _total_duration(-1.) {}
 
-        // Initialize a trajectory given the polynomial time durations.
+        /**
+         * @brief Constructor for Trajectory class that initializes the trajectory given polynomial time durations.
+         *
+         * @param durations A vector containing the duration of each polynomial.
+         * @param all_regular A flag indicating if all polynomials should be regular.
+         */
         Trajectory(const std::vector<double>& durations, bool all_regular = false) : _total_duration(0.)
         {
             // Fill _polynomial_pairs vector with dummy polynomials (all-zeros).
@@ -37,10 +51,22 @@ namespace cspl {
             }
         }
 
-        // Get total duration of trajectory.
+        /**
+         * @brief Get the total duration of the trajectory.
+         *
+         * @return double The total duration of the trajectory.
+         */
         double total_duration() const { return _total_duration; }
 
-        // Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
+        /**
+         * @brief Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
+         *
+         * @param next_pos The next target position.
+         * @param next_vel The next target velocity.
+         * @param duration The duration to reach the next target. Default is 0.
+         * @note If it's the first point added to trajectory, the initial point begins at time 0.
+         * @warning You cannot have a duration > 0. for the initial point!
+         */
         void add_point(const VecD& next_pos, const VecD& next_vel, double duration = 0.)
         {
             // Check if it's the first point added to trajectory.
@@ -63,7 +89,13 @@ namespace cspl {
             _last_vel = next_vel;
         }
 
-        // Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
+        /**
+         * @brief Adds a new target position and velocity and calculates a position-velocity polynomial to get there.
+         *
+         * @param next_pos Target position to reach.
+         * @param duration Duration of the trajectory to reach the target position.
+         * @warning You cannot use acceleration contructor for the initial point!
+         */
         void add_point(const VecD& next_pos, double duration = 1.)
         {
             // Check if it's the first point added to trajectory.
@@ -86,7 +118,12 @@ namespace cspl {
             _last_vel = _polynomial_pairs.back().polynomial->velocity(1.);
         }
 
-        // Get position at time t.
+        /**
+         * @brief Get position at time t.
+         *
+         * @param t Time.
+         * @return VecD Position vector.
+         */
         VecD position(double t) const
         {
             double sum = 0;
@@ -105,7 +142,12 @@ namespace cspl {
             return _polynomial_pairs.back().polynomial->position(1.);
         }
 
-        // Get velocity at time t.
+        /**
+         * @brief Get velocity at time t.
+         *
+         * @param t Time at which to get the velocity.
+         * @return Velocity vector at time t.
+         */
         VecD velocity(double t) const
         {
             double sum = 0;
@@ -124,7 +166,12 @@ namespace cspl {
             return _polynomial_pairs.back().polynomial->velocity(1.);
         }
 
-        // Get acceleration at time t.
+        /**
+         * @brief Get acceleration at time t.
+         *
+         * @param t Time at which to get the acceleration.
+         * @return Acceleration vector at time t.
+         */
         VecD acceleration(double t) const
         {
             double sum = 0;
@@ -143,9 +190,20 @@ namespace cspl {
             return _polynomial_pairs.back().polynomial->acceleration(1.);
         }
 
-        // Get polynomials vector (const ref).
+        /**
+         * @brief Get the polynomials vector of the trajectory.
+         *
+         * @return const std::vector<PolynomialTimePair>& Reference to the vector of polynomial-time pairs.
+         */
         const std::vector<PolynomialTimePair>& polynomials() const { return _polynomial_pairs; }
-        // Get polynomials vector (pass-by-reference to modify outside class and avoid copies).
+
+        /**
+         * @brief Get the polynomials vector of the trajectory (modifiable).
+         *
+         * @note pass-by-reference to modify outside class and avoid copies.
+         *
+         * @return std::vector<PolynomialTimePair>& Reference to the vector of polynomial-time pairs.
+         */
         std::vector<PolynomialTimePair>& polynomials() { return _polynomial_pairs; }
 
     protected:

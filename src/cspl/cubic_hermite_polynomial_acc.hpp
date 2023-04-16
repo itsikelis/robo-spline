@@ -3,6 +3,11 @@
 #include <cspl/cubic_hermite_polynomial.hpp>
 
 namespace cspl {
+    /**
+     * @brief Acceleration Cubic Hermite Polynomial class.
+     *
+     * @tparam D The dimensionality of the trajectory.
+     */
     template <unsigned int D>
     class CubicHermitePolynomialAcc : public CubicHermitePolynomial<D> {
     public:
@@ -10,9 +15,8 @@ namespace cspl {
         using Vector = typename CubicHermitePolynomial<D>::Vector;
 
         /**
-         * Constructs a cubic Hermite polynomial object given initial position, velocity and acceleration and the final position.
+         * @brief Constructs a cubic Hermite polynomial object given initial position, velocity and acceleration and the final position.
          *
-         * @tparam D The dimension of the vector space.
          * @param p0 The initial position vector.
          * @param v0 The initial velocity vector.
          * @param a0 The initial acceleration vector.
@@ -26,7 +30,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing all parameters (initial and final) of the cubic Hermite polynomial.
          */
@@ -38,7 +42,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing the initial parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the initial parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing the initial parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
          */
@@ -50,7 +54,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing the final parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the final parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing the final parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
          */
@@ -62,7 +66,7 @@ namespace cspl {
         }
 
         /**
-         * Set polynomial initial and final positions and initial velocity and acceleration.
+         * @brief Set polynomial initial and final positions and initial velocity and acceleration.
          *
          * @param x Parameters vector (initial and final positions, initial velocity and acceleration).
          */
@@ -81,7 +85,7 @@ namespace cspl {
         }
 
         /**
-         * Set polynomial coefficients manually.
+         * @brief Set polynomial coefficients manually.
          *
          * @param x Coefficients vector.
          */
@@ -100,7 +104,7 @@ namespace cspl {
         }
 
         /**
-         * Get the position derivative of the polynomial at time t.
+         * @brief Get the position derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the position derivative at the given time.
@@ -124,7 +128,7 @@ namespace cspl {
         }
 
         /**
-         * Get the velocity derivative of the polynomial at time t.
+         * @brief Get the velocity derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the velocity derivative at the given time.
@@ -147,7 +151,7 @@ namespace cspl {
         }
 
         /**
-         * Get the acceleration derivative of the polynomial at time t.
+         * @brief Get the acceleration derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the acceleration derivative at the given time.

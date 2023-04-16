@@ -3,7 +3,11 @@
 #include <Eigen/Dense>
 
 namespace cspl {
-    // Interface for the polynomial class.
+    /**
+     * @brief Regular Cubic Hermite Polynomial class.
+     *
+     * @tparam D The dimensionality of the trajectory.
+     */
     template <unsigned int D>
     class CubicHermitePolynomial {
     public:
@@ -11,9 +15,8 @@ namespace cspl {
         using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
 
         /**
-         * Constructs a cubic Hermite polynomial object using the given initial and final position and velocity vectors.
+         * @brief Constructs a cubic Hermite polynomial object using the given initial and final position and velocity vectors.
          *
-         * @tparam D The dimension of the vector space.
          * @param p0 The initial position vector.
          * @param v0 The initial velocity vector.
          * @param p1 The final position vector.
@@ -27,7 +30,7 @@ namespace cspl {
         }
 
         /**
-         * Returns the position of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         * @brief Returns the position of a cubic Hermite polynomial at a normalized time in the range [0,1].
          *
          * @param t The normalized time value in the range [0,1].
          * @return A VecD object representing the position of the cubic Hermite polynomial at the given time.
@@ -38,7 +41,7 @@ namespace cspl {
         }
 
         /**
-         * Returns the velocity of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         * @brief Returns the velocity of a cubic Hermite polynomial at a normalized time in the range [0,1].
          *
          * @param t The normalized time value in the range [0,1].
          * @return A VecD object representing the velocity of the cubic Hermite polynomial at the given time.
@@ -49,7 +52,7 @@ namespace cspl {
         }
 
         /**
-         * Returns the acceleration of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         * @brief Returns the acceleration of a cubic Hermite polynomial at a normalized time in the range [0,1].
          *
          * @param t The normalized time value in the range [0,1].
          * @return A VecD object representing the acceleration of the cubic Hermite polynomial at the given time.
@@ -60,7 +63,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing the coefficients of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the coefficients of the cubic Hermite polynomial.
          *
          * @return A Vector object containing the coefficients of the cubic Hermite polynomial.
          */
@@ -72,7 +75,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing all parameters (initial and final) of the cubic Hermite polynomial.
          */
@@ -84,7 +87,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing the initial parameters (position and velocity) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the initial parameters (position and velocity) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing the initial parameters (position and velocity) of the cubic Hermite polynomial.
          */
@@ -96,7 +99,7 @@ namespace cspl {
         }
 
         /**
-         * Returns a Vector object representing the final parameters (position and velocity) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the final parameters (position and velocity) of the cubic Hermite polynomial.
          *
          * @return A Vector object containing the final parameters (position and velocity) of the cubic Hermite polynomial.
          */
@@ -108,7 +111,7 @@ namespace cspl {
         }
 
         /**
-         * Set polynomial initial and final positions and velocities.
+         * @brief Set polynomial initial and final positions and velocities.
          *
          * @param x Parameters vector (initial and final positions and velocities).
          */
@@ -127,7 +130,7 @@ namespace cspl {
         }
 
         /**
-         * Set polynomial coefficients manually.
+         * @brief Set polynomial coefficients manually.
          *
          * @param x Coefficients vector.
          */
@@ -146,7 +149,7 @@ namespace cspl {
         }
 
         /**
-         * Get the position derivative of the polynomial at time t.
+         * @brief Get the position derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the position derivative at the given time.
@@ -170,7 +173,7 @@ namespace cspl {
         }
 
         /**
-         * Get the velocity derivative of the polynomial at time t.
+         * @brief Get the velocity derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the velocity derivative at the given time.
@@ -193,7 +196,7 @@ namespace cspl {
         }
 
         /**
-         * Get the acceleration derivative of the polynomial at time t.
+         * @brief Get the acceleration derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the acceleration derivative at the given time.
