@@ -28,6 +28,7 @@ namespace cspl {
         {
             // Fill _polynomial_pairs vector with dummy polynomials (all-zeros).
             for (size_t i = 0; i < durations.size(); i++) {
+                // Last polynomial cannot be acceleration only.
                 if (all_regular || i == (durations.size() - 1))
                     _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
                 else

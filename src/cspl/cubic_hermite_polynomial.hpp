@@ -10,7 +10,15 @@ namespace cspl {
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
         using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
 
-        // p0, v0 initial position and velocity, p1, v2: final position and velocity
+        /**
+         * Constructs a cubic Hermite polynomial object using the given initial and final position and velocity vectors.
+         *
+         * @tparam D The dimension of the vector space.
+         * @param p0 The initial position vector.
+         * @param v0 The initial velocity vector.
+         * @param p1 The final position vector.
+         * @param v1 The final velocity vector.
+         */
         CubicHermitePolynomial(const VecD& p0, const VecD& v0, const VecD& p1, const VecD& v1)
         {
             Vector p(D * 4);
@@ -18,25 +26,44 @@ namespace cspl {
             set_points(p);
         }
 
-        // Get position at normalised time in [0-1].
+        /**
+         * Returns the position of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         *
+         * @param t The normalized time value in the range [0,1].
+         * @return A VecD object representing the position of the cubic Hermite polynomial at the given time.
+         */
         VecD position(double t) const
         {
             return _c0 + (_c1 * t) + (_c2 * t * t) + (_c3 * t * t * t);
         }
 
-        // Get velocity at normalised time in [0-1].
+        /**
+         * Returns the velocity of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         *
+         * @param t The normalized time value in the range [0,1].
+         * @return A VecD object representing the velocity of the cubic Hermite polynomial at the given time.
+         */
         VecD velocity(double t) const
         {
             return _c1 + (2 * _c2 * t) + (3 * _c3 * t * t);
         }
 
-        // Get acceleration at normalised time in [0-1].
+        /**
+         * Returns the acceleration of a cubic Hermite polynomial at a normalized time in the range [0,1].
+         *
+         * @param t The normalized time value in the range [0,1].
+         * @return A VecD object representing the acceleration of the cubic Hermite polynomial at the given time.
+         */
         VecD acceleration(double t) const
         {
             return (2 * _c2) + (6 * _c3 * t);
         }
 
-        // Get polynomial coefficients.
+        /**
+         * Returns a Vector object representing the coefficients of the cubic Hermite polynomial.
+         *
+         * @return A Vector object containing the coefficients of the cubic Hermite polynomial.
+         */
         Vector coeffs() const
         {
             Vector coeffs(D * 4);
@@ -44,7 +71,11 @@ namespace cspl {
             return coeffs;
         }
 
-        // Get polynomial parameters (initial, final).
+        /**
+         * Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
+         *
+         * @return A Vector object containing all parameters (initial and final) of the cubic Hermite polynomial.
+         */
         virtual Vector points_all() const
         {
             Vector points(D * 4);
@@ -52,7 +83,11 @@ namespace cspl {
             return points;
         }
 
-        // Get initial polynomial parameters (initial, final).
+        /**
+         * Returns a Vector object representing the initial parameters (position and velocity) of the cubic Hermite polynomial.
+         *
+         * @return A Vector object containing the initial parameters (position and velocity) of the cubic Hermite polynomial.
+         */
         virtual Vector points_initial() const
         {
             Vector points(D * 2);
@@ -60,7 +95,11 @@ namespace cspl {
             return points;
         }
 
-        // Get final polynomial parameters (initial, final).
+        /**
+         * Returns a Vector object representing the final parameters (position and velocity) of the cubic Hermite polynomial.
+         *
+         * @return A Vector object containing the final parameters (position and velocity) of the cubic Hermite polynomial.
+         */
         virtual Vector points_target() const
         {
             Vector points(D * 2);
@@ -68,7 +107,11 @@ namespace cspl {
             return points;
         }
 
-        // Set polynomial initial and final positions and velocities.
+        /**
+         * Set polynomial initial and final positions and velocities.
+         *
+         * @param x Parameters vector (initial and final positions and velocities).
+         */
         virtual void set_points(const Vector& x)
         {
             // assume x.size() == D*4
@@ -83,7 +126,11 @@ namespace cspl {
             _c3 = -2. * _p1 + 2. * _p0 + _v0 + _v1;
         }
 
-        // Set polynomial parameters manually.
+        /**
+         * Set polynomial coefficients manually.
+         *
+         * @param x Coefficients vector.
+         */
         virtual void set_coeffs(const Vector& x)
         {
             // assume x.size() == D*4
@@ -98,26 +145,36 @@ namespace cspl {
             _v1 = velocity(1.);
         }
 
-        // get position derivative
+        /**
+         * Get the position derivative of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A 4D vector containing the position derivative at the given time.
+         */
         virtual Vector deriv_pos(double t) const
         {
             const double t2 = t * t;
             const double t3 = t * t2;
             Vector deriv = Vector::Zero(4);
 
-            // initial position
+            // initial position derivative
             deriv[0] = 1. - 3. * t2 + 2. * t3;
-            // initial velocity
+            // initial velocity derivative
             deriv[1] = 1. * t - 2. * t2 + 1. * t3;
-            // final position
+            // final position derivative
             deriv[2] = 3. * t2 - 2. * t3;
-            // final velocity
+            // final velocity derivative
             deriv[3] = -1. * t2 + 1. * t3;
 
             return deriv;
         }
 
-        // get velocity derivative
+        /**
+         * Get the velocity derivative of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A 4D vector containing the velocity derivative at the given time.
+         */
         virtual Vector deriv_vel(double t) const
         {
             const double t2 = t * t;
@@ -135,7 +192,12 @@ namespace cspl {
             return deriv;
         }
 
-        // get acceleration derivative
+        /**
+         * Get the acceleration derivative of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A 4D vector containing the acceleration derivative at the given time.
+         */
         virtual Vector deriv_acc(double t) const
         {
             Vector deriv = Vector::Zero(4);
@@ -153,8 +215,8 @@ namespace cspl {
         }
 
     protected:
-        VecD _c0, _c1, _c2, _c3; // polynomial coefficients
-        VecD _p0, _v0, _p1, _v1; // points
+        VecD _c0, _c1, _c2, _c3; // Polynomial Coefficients.
+        VecD _p0, _v0, _p1, _v1; // Points.
 
         CubicHermitePolynomial() {}
     };
