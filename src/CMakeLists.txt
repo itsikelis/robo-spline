@@ -8,19 +8,13 @@ add_library(${LIB_CORE}
     cubic_hermite_polynomial.hpp
     cubic_hermite_polynomial_acc.hpp   
 )
-target_include_directories(${LIB_CORE} 
-  PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>
-    $<INSTALL_INTERFACE:include>
-    ${EIGEN3_INCLUDE_DIR}
-)
+# target_include_directories(${LIB_CORE} 
+#   PUBLIC 
+#     $<INSTALL_INTERFACE:include>
+#     ${EIGEN3_INCLUDE_DIR}
+# )
 # better specify features you need, not c++ version
-target_compile_features(${LIB_CORE} 
-  PUBLIC 
-    cxx_range_for 
-    cxx_auto_type
-)
+target_compile_options(${LIB_CORE} PUBLIC "-Wall;-Wextra;-Werror;-O3")
 
 #############
 ## Install ##
