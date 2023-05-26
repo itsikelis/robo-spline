@@ -1,4 +1,4 @@
-# # Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
+# Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
 cmake_minimum_required(VERSION 3.15)
 
 set(namespace "rspl")
@@ -66,6 +66,8 @@ else()
         "Current value: ${CMAKE_INSTALL_PREFIX}"
     )
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # note that ${public_headers} should be in quotes
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
