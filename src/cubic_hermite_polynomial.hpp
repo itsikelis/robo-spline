@@ -152,7 +152,7 @@ namespace cspl {
          * @brief Get the position derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
-         * @return A 4D vector containing the position derivative at the given time.
+         * @return A 4D vector containing the partial derivatives at the given time.
          */
         virtual Vector deriv_pos(double t) const
         {
@@ -160,13 +160,13 @@ namespace cspl {
             const double t3 = t * t2;
             Vector deriv = Vector::Zero(4);
 
-            // initial position derivative
+            // derivative w.r.t x0
             deriv[0] = 1. - 3. * t2 + 2. * t3;
-            // initial velocity derivative
+            // derivative w.r.t v0
             deriv[1] = 1. * t - 2. * t2 + 1. * t3;
-            // final position derivative
+            // derivative w.r.t x1
             deriv[2] = 3. * t2 - 2. * t3;
-            // final velocity derivative
+            // derivative w.r.t v1
             deriv[3] = -1. * t2 + 1. * t3;
 
             return deriv;

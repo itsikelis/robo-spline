@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cspl/cubic_hermite_polynomial.hpp>
+#include "cubic_hermite_polynomial.hpp"
 
 namespace cspl {
     /**
@@ -176,3 +176,4 @@ namespace cspl {
     using CubicHermitePolynomialAcc2D = CubicHermitePolynomialAcc<2>;
     using CubicHermitePolynomialAcc3D = CubicHermitePolynomialAcc<3>;
 } // namespace cspl
+
