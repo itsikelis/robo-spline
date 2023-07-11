@@ -14,6 +14,13 @@ namespace cspl {
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
         using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
 
+        enum PointIndex {
+            P_0,
+            V_0,
+            P_1,
+            V_1
+        };
+
         /**
          * @brief Constructs a cubic Hermite polynomial object using the given initial and final position and velocity vectors.
          *
@@ -103,6 +110,29 @@ namespace cspl {
             deriv[3] = -t2 + t3;
 
             return deriv;
+        }
+
+        virtual double deriv_pos(double t, PointIndex idx) const
+        {
+            const double t2 = t * t;
+            const double t3 = t * t2;
+
+            if (idx == P_0) {
+                return 1. - 3. * t2 + 2. * t3; // derivative w.r.t p0
+            }
+            else if (idx == V_0) {
+                return t - 2. * t2 + t3; // derivative w.r.t v0
+            }
+            else if (idx == P_1) {
+                return 3. * t2 - 2. * t3; // derivative w.r.t p1
+            }
+            else if (idx == V_1) {
+                return -t2 + t3; // derivative w.r.t v1
+            }
+            else {
+                std::cerr << " No such partial derivative index!" << std::endl;
+                return -1;
+            }
         }
 
         /**
