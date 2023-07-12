@@ -9,7 +9,7 @@ namespace cspl {
      * @tparam D The dimensionality of the trajectory.
      */
     template <unsigned int D>
-    class CubicHermitePolynomial {
+    class CubicHermiteSpline {
     public:
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
         using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
@@ -29,7 +29,7 @@ namespace cspl {
          * @param p1 The final position vector.
          * @param v1 The final velocity vector.
          */
-        CubicHermitePolynomial(const VecD& p0, const VecD& v0, const VecD& p1, const VecD& v1)
+        CubicHermiteSpline(const VecD& p0, const VecD& v0, const VecD& p1, const VecD& v1)
         {
             Vector x(D * 4);
             x << p0, v0, p1, v1;
@@ -251,9 +251,9 @@ namespace cspl {
         VecD _c0, _c1, _c2, _c3; // Polynomial Coefficients.
         VecD _p0, _v0, _p1, _v1; // Points.
 
-        CubicHermitePolynomial() {}
+        CubicHermiteSpline() {}
     };
 
-    using CubicHermitePolynomialReg2D = CubicHermitePolynomial<2>;
-    using CubicHermitePolynomialReg3D = CubicHermitePolynomial<3>;
+    using CubicHermitePolynomialReg2D = CubicHermiteSpline<2>;
+    using CubicHermitePolynomialReg3D = CubicHermiteSpline<3>;
 } // namespace cspl

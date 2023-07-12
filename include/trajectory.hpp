@@ -21,15 +21,15 @@ namespace cspl
     class Trajectory
     {
     public:
-        using VecD = typename CubicHermitePolynomial<D>::VecD;
-        using Vector = typename CubicHermitePolynomial<D>::Vector;
+        using VecD = typename CubicHermiteSpline<D>::VecD;
+        using Vector = typename CubicHermiteSpline<D>::Vector;
 
         /**
          * @brief Struct to store each polynomial trajectory and its corresponding duration.
          */
         struct PolynomialTimePair
         {
-            std::shared_ptr<CubicHermitePolynomial<D>> polynomial;
+            std::shared_ptr<CubicHermiteSpline<D>> polynomial;
             double duration;
         };
 
@@ -51,9 +51,9 @@ namespace cspl
             {
                 // Last polynomial cannot be acceleration only.
                 if (all_regular || i == (durations.size() - 1))
-                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermiteSpline<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
                 else
-                    _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
+                    _polynomial_pairs.push_back({std::make_shared<CubicHermiteSplineAcc<D>>(VecD::Zero(), VecD::Zero(), VecD::Zero(), VecD::Zero()), durations[i]});
                 _total_duration += durations[i];
             }
         }
@@ -91,7 +91,7 @@ namespace cspl
                 return;
             }
 
-            _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomial<D>>(_last_pos, _last_vel, next_pos, next_vel), duration});
+            _polynomial_pairs.push_back({std::make_shared<CubicHermiteSpline<D>>(_last_pos, _last_vel, next_pos, next_vel), duration});
             _total_duration += duration;
 
             _last_pos = next_pos;
@@ -120,7 +120,7 @@ namespace cspl
             else
                 a0 = _polynomial_pairs.back().polynomial->acceleration(1.);
 
-            _polynomial_pairs.push_back({std::make_shared<CubicHermitePolynomialAcc<D>>(_last_pos, _last_vel, a0, next_pos), duration});
+            _polynomial_pairs.push_back({std::make_shared<CubicHermiteSplineAcc<D>>(_last_pos, _last_vel, a0, next_pos), duration});
 
             _total_duration += duration;
 

@@ -1,28 +1,28 @@
 #pragma once
 
-#include "cubic_hermite_polynomial.hpp"
+#include "cubic_hermite_spline.hpp"
 
 namespace cspl {
     /**
-     * @brief Acceleration Cubic Hermite Polynomial class.
+     * @brief Acceleration Cubic Hermite Spline class.
      *
      * @tparam D The dimensionality of the trajectory.
      */
     template <unsigned int D>
-    class CubicHermitePolynomialAcc : public CubicHermitePolynomial<D> {
+    class CubicHermiteSplineAcc : public CubicHermitePolynomial<D> {
     public:
         using VecD = typename CubicHermitePolynomial<D>::VecD;
         using Vector = typename CubicHermitePolynomial<D>::Vector;
 
         /**
-         * @brief Constructs a cubic Hermite polynomial object given initial position, velocity and acceleration and the final position.
+         * @brief Constructs a cubic Hermite spline object given initial position, velocity and acceleration and the final position.
          *
          * @param p0 The initial position vector.
          * @param v0 The initial velocity vector.
          * @param a0 The initial acceleration vector.
          * @param p1 The final position vector.
          */
-        CubicHermitePolynomialAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1) : CubicHermitePolynomial<D>()
+        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1) : CubicHermitePolynomial<D>()
         {
             Vector p(D * 4);
             p << p0, v0, a0, p1;
@@ -30,9 +30,9 @@ namespace cspl {
         }
 
         /**
-         * @brief Returns a Vector object representing all parameters (initial and final) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing all parameters (initial and final) of the cubic Hermite spline.
          *
-         * @return A Vector object containing all parameters (initial and final) of the cubic Hermite polynomial.
+         * @return A Vector object containing all parameters (initial and final) of the cubic Hermite spline.
          */
         Vector points_all() const override
         {
@@ -42,9 +42,9 @@ namespace cspl {
         }
 
         /**
-         * @brief Returns a Vector object representing the initial parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the initial parameters (position, velocity, acceleration) of the cubic Hermite spline.
          *
-         * @return A Vector object containing the initial parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @return A Vector object containing the initial parameters (position, velocity, acceleration) of the cubic Hermite spline.
          */
         Vector points_initial() const override
         {
@@ -54,9 +54,9 @@ namespace cspl {
         }
 
         /**
-         * @brief Returns a Vector object representing the final parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @brief Returns a Vector object representing the final parameters (position, velocity, acceleration) of the cubic Hermite spline.
          *
-         * @return A Vector object containing the final parameters (position, velocity, acceleration) of the cubic Hermite polynomial.
+         * @return A Vector object containing the final parameters (position, velocity, acceleration) of the cubic Hermite spline.
          */
         Vector points_target() const override
         {
@@ -66,7 +66,7 @@ namespace cspl {
         }
 
         /**
-         * @brief Set polynomial initial and final positions and initial velocity and acceleration.
+         * @brief Set spline initial and final points and their derivatives.
          *
          * @param x Parameters vector (initial and final positions, initial velocity and acceleration).
          */
@@ -85,7 +85,7 @@ namespace cspl {
         }
 
         /**
-         * @brief Set polynomial coefficients manually.
+         * @brief Set spline coefficients manually.
          *
          * @param x Coefficients vector.
          */
@@ -104,7 +104,7 @@ namespace cspl {
         }
 
         /**
-         * @brief Get the position derivative of the polynomial at time t.
+         * @brief Get the position derivative of the spline at time t.
          *
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the position derivative at the given time.
@@ -173,7 +173,7 @@ namespace cspl {
         }
     };
 
-    using CubicHermitePolynomialAcc2D = CubicHermitePolynomialAcc<2>;
-    using CubicHermitePolynomialAcc3D = CubicHermitePolynomialAcc<3>;
+    using CubicHermitePolynomialAcc2D = CubicHermiteSplineAcc<2>;
+    using CubicHermitePolynomialAcc3D = CubicHermiteSplineAcc<3>;
 } // namespace cspl
 
