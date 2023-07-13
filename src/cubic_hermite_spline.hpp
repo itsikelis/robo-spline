@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace cspl {
+namespace rspl {
     /**
      * @brief Regular Cubic Hermite Polynomial class.
      *
@@ -298,4 +298,4 @@ namespace cspl {
 
     using CubicHermitePolynomialReg2D = CubicHermiteSpline<2>;
     using CubicHermitePolynomialReg3D = CubicHermiteSpline<3>;
-} // namespace cspl
+} // namespace rspl

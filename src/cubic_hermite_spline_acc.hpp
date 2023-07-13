@@ -2,7 +2,7 @@
 
 #include "cubic_hermite_spline.hpp"
 
-namespace cspl {
+namespace rspl {
     /**
      * @brief Acceleration Cubic Hermite Spline class.
      *
@@ -241,4 +241,4 @@ namespace cspl {
 
     using CubicHermitePolynomialAcc2D = CubicHermiteSplineAcc<2>;
     using CubicHermitePolynomialAcc3D = CubicHermiteSplineAcc<3>;
-} // namespace cspl
+} // namespace rspl
