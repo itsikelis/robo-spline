@@ -158,6 +158,28 @@ namespace cspl {
             return deriv;
         }
 
+        virtual double deriv_vel(double t, PointIndex idx) const
+        {
+            const double t2 = t * t;
+
+            if (idx == P_0) {
+                return -6. * t + 6. * t2; // derivative w.r.t p0
+            }
+            else if (idx == V_0) {
+                return 1. - 4. * t + 3. * t2; // derivative w.r.t v0
+            }
+            else if (idx == P_1) {
+                return 6. * t - 6. * t2; // derivative w.r.t p1
+            }
+            else if (idx == V_1) {
+                return -2. * t + 3. * t2; // derivative w.r.t v1
+            }
+            else {
+                std::cerr << " No such partial derivative index!" << std::endl;
+                return -1;
+            }
+        }
+
         /**
          * @brief Get the acceleration derivative of the polynomial at time t.
          *
@@ -178,6 +200,26 @@ namespace cspl {
             deriv[3] = -2. + 6. * t;
 
             return deriv;
+        }
+
+        virtual double deriv_acc(double t, PointIndex idx) const
+        {
+            if (idx == P_0) {
+                return -6. + 12. * t; // derivative w.r.t p0
+            }
+            else if (idx == V_0) {
+                return -4. + 6. * t; // derivative w.r.t v0
+            }
+            else if (idx == P_1) {
+                return 6. - 12. * t; // derivative w.r.t p1
+            }
+            else if (idx == V_1) {
+                return -2. + 6. * t; // derivative w.r.t v1
+            }
+            else {
+                std::cerr << " No such partial derivative index!" << std::endl;
+                return -1;
+            }
         }
 
         /**
