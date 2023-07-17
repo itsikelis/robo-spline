@@ -21,6 +21,7 @@ namespace rspl {
     public:
         using VecD = typename CubicHermiteSpline<D>::VecD;
         using Vector = typename CubicHermiteSpline<D>::Vector;
+        using PointIndex = typename CubicHermiteSpline<D>::PointIndex;
         using Vec2 = Eigen::Vector2d;
         using Time = double;
         using SplineIndex = unsigned int;
@@ -173,6 +174,17 @@ namespace rspl {
             return std::make_pair(idx, deriv);
         }
 
+        std::pair<SplineIndex, double> deriv_pos(double t, PointIndex knot_index) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            double deriv = _spline_duration_pairs[idx].spline->deriv_pos(t_norm, knot_index);
+
+            return std::make_pair(idx, deriv);
+        }
+
         /**
          * @brief Get the velocity derivative of the trajectory at time t.
          *
@@ -190,6 +202,17 @@ namespace rspl {
             return std::make_pair(idx, deriv);
         }
 
+        std::pair<SplineIndex, double> deriv_vel(double t, PointIndex knot_index) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            double deriv = _spline_duration_pairs[idx].spline->deriv_vel(t_norm, knot_index);
+
+            return std::make_pair(idx, deriv);
+        }
+
         /**
          * @brief Get the acceleration derivative of the trajectory at time t.
          *
@@ -203,6 +226,17 @@ namespace rspl {
             Time t_norm = pair.second;
 
             Vector deriv = _spline_duration_pairs[idx].spline->deriv_acc(t_norm);
+
+            return std::make_pair(idx, deriv);
+        }
+
+        std::pair<SplineIndex, double> deriv_acc(double t, PointIndex knot_index) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            double deriv = _spline_duration_pairs[idx].spline->deriv_acc(t_norm, knot_index);
 
             return std::make_pair(idx, deriv);
         }
