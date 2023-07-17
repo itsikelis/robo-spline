@@ -22,12 +22,15 @@ namespace rspl {
         using VecD = typename CubicHermiteSpline<D>::VecD;
         using Vector = typename CubicHermiteSpline<D>::Vector;
         using Vec2 = Eigen::Vector2d;
+        using Time = double;
+        using SplineIndex = unsigned int;
 
         struct SplineDurationPair {
             std::shared_ptr<CubicHermiteSpline<D>> spline;
             double duration;
         };
 
+    public:
         Trajectory() : _total_duration(-1.) {}
 
         /**
@@ -116,13 +119,11 @@ namespace rspl {
          */
         VecD position(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return _spline_duration_pairs[pair.spline_idx].spline->position(pair.t_norm);
-            }
-            else {
-                return _spline_duration_pairs.back().spline->position(1.);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            return _spline_duration_pairs[idx].spline->position(t_norm);
         }
 
         /**
@@ -133,13 +134,11 @@ namespace rspl {
          */
         VecD velocity(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return _spline_duration_pairs[pair.spline_idx].spline->velocity(pair.t_norm);
-            }
-            else {
-                return _spline_duration_pairs.back().spline->velocity(1.);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            return _spline_duration_pairs[idx].spline->velocity(t_norm);
         }
 
         /**
@@ -150,13 +149,11 @@ namespace rspl {
          */
         VecD acceleration(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return _spline_duration_pairs[pair.spline_idx].spline->acceleration(pair.t_norm);
-            }
-            else {
-                return _spline_duration_pairs.back().spline->acceleration(1.);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            return _spline_duration_pairs[idx].spline->acceleration(t_norm);
         }
 
         /**
@@ -165,15 +162,15 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A pair containing a 4D vector containing the position derivative at the given time amd the current polynomial index.
          */
-        std::pair<Vector, int> deriv_pos(double t) const
+        std::pair<SplineIndex, Vector> deriv_pos(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return std::make_pair(_spline_duration_pairs[pair.spline_idx].spline->deriv_pos(pair.t_norm), pair.spline_idx);
-            }
-            else {
-                return std::make_pair(_spline_duration_pairs.back().spline->deriv_pos(1.), _spline_duration_pairs.size() - 1);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Vector deriv = _spline_duration_pairs[idx].spline->deriv_pos(t_norm);
+
+            return std::make_pair(idx, deriv);
         }
 
         /**
@@ -182,15 +179,15 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the velocity derivative at the given time.
          */
-        std::pair<Vector, int> deriv_vel(double t) const
+        std::pair<SplineIndex, Vector> deriv_vel(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return std::make_pair(_spline_duration_pairs[pair.spline_idx].spline->deriv_vel(pair.t_norm), pair.spline_idx);
-            }
-            else {
-                return std::make_pair(_spline_duration_pairs.back().spline->deriv_vel(1.), _spline_duration_pairs.size() - 1);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Vector deriv = _spline_duration_pairs[idx].spline->deriv_vel(t_norm);
+
+            return std::make_pair(idx, deriv);
         }
 
         /**
@@ -199,15 +196,15 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A 4D vector containing the acceleration derivative at the given time.
          */
-        std::pair<Vector, int> deriv_acc(double t) const
+        std::pair<SplineIndex, Vector> deriv_acc(double t) const
         {
-            if (t <= _total_duration) {
-                IndexTimePair pair = t_normalised_and_spline_index(t);
-                return std::make_pair(_spline_duration_pairs[pair.spline_idx].spline->deriv_acc(pair.t_norm), pair.spline_idx);
-            }
-            else {
-                return std::make_pair(_spline_duration_pairs.back().spline->deriv_acc(1.), _spline_duration_pairs.size() - 1);
-            }
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Vector deriv = _spline_duration_pairs[idx].spline->deriv_acc(t_norm);
+
+            return std::make_pair(idx, deriv);
         }
 
         /**
@@ -227,28 +224,25 @@ namespace rspl {
         std::vector<SplineDurationPair>& splines() { return _spline_duration_pairs; }
 
     protected:
-        struct IndexTimePair {
-            int spline_idx;
-            double t_norm;
-        };
-
-        IndexTimePair t_normalised_and_spline_index(double t) const
+        std::pair<SplineIndex, Time> normalise_time(double t) const
         {
-            double sum = 0;
-            double prev_sum = 0;
-            for (int i = 0; i < static_cast<int>(_spline_duration_pairs.size()); i++) {
-                sum += _spline_duration_pairs[i].duration;
+            if (t < _total_duration) {
+                double sum = 0;
+                double prev_sum = 0;
+                for (int i = 0; i < static_cast<int>(_spline_duration_pairs.size()); i++) {
+                    sum += _spline_duration_pairs[i].duration;
 
-                if (t <= sum - _epsilon) {
-                    double t_norm = (t - prev_sum) / (sum - prev_sum);
+                    if (t <= sum - _epsilon) {
+                        Time t_norm = (t - prev_sum) / (sum - prev_sum);
 
-                    return {i, t_norm};
+                        return std::make_pair(i, t_norm);
+                    }
+
+                    prev_sum = sum;
                 }
-
-                prev_sum = sum;
             }
-            // If time is not found, return last spline index and total time.
-            return {static_cast<int>(_spline_duration_pairs.size() - 1), _total_duration};
+            // Keep this outside an else statement, because for loop may fail to return due to floating point error.
+            return std::make_pair(static_cast<int>(_spline_duration_pairs.size() - 1), 1.);
         }
 
     protected:
