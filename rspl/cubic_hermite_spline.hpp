@@ -292,8 +292,6 @@ namespace rspl {
     protected:
         VecD _c0, _c1, _c2, _c3; // Polynomial Coefficients.
         VecD _p0, _v0, _p1, _v1; // Points.
-
-        CubicHermiteSpline() {}
     };
 
     using CubicHermitePolynomialReg2D = CubicHermiteSpline<2>;

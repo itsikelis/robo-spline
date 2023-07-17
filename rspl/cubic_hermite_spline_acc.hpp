@@ -9,10 +9,17 @@ namespace rspl {
      * @tparam D The dimensionality of the trajectory.
      */
     template <unsigned int D>
-    class CubicHermiteSplineAcc : public CubicHermitePolynomial<D> {
+    class CubicHermiteSplineAcc : public CubicHermiteSpline<D> {
     public:
-        using VecD = typename CubicHermitePolynomial<D>::VecD;
-        using Vector = typename CubicHermitePolynomial<D>::Vector;
+        using VecD = typename CubicHermiteSpline<D>::VecD;
+        using Vector = typename CubicHermiteSpline<D>::Vector;
+
+        enum PointIndex {
+            P_0,
+            V_0,
+            P_1,
+            V_1
+        };
 
         /**
          * @brief Constructs a cubic Hermite spline object given initial position, velocity and acceleration and the final position.
@@ -22,7 +29,7 @@ namespace rspl {
          * @param a0 The initial acceleration vector.
          * @param p1 The final position vector.
          */
-        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1) : CubicHermiteSpline<D>()
+        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1)
         {
             Vector x(D * 4);
             x << p0, v0, a0, p1;
@@ -239,6 +246,6 @@ namespace rspl {
         }
     };
 
-    using CubicHermitePolynomialAcc2D = CubicHermiteSplineAcc<2>;
-    using CubicHermitePolynomialAcc3D = CubicHermiteSplineAcc<3>;
+    using CubicHermiteSplineAcc2D = CubicHermiteSplineAcc<2>;
+    using CubicHermiteSplineAcc3D = CubicHermiteSplineAcc<3>;
 } // namespace rspl
