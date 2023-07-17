@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "rspl/trajectory.hpp"
+#include <robo_spline/trajectory.hpp>
 
 int main()
 {

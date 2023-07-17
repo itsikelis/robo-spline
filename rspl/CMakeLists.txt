@@ -1,1 +1,0 @@
-target_sources(${PROJECT_NAME} PRIVATE trajectory.hpp cubic_hermite_spline.hpp cubic_hermite_spline_acc.hpp)
