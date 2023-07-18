@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(
-    RoboSpline
+    robo_spline
     VERSION 1.0
     DESCRIPTION "A Cubic Hermite Spline Library for Robot Trajectory Optimisation."
     LANGUAGES CXX)
@@ -36,6 +36,12 @@ endif()
 # Include Eigen.
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
+set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/robo_spline/trajectory.hpp")
+set(INCLUDE_DEST "include/${PROJECT_NAME}${PROJECT_VERSION}")
+set(LIB_DEST "lib/cmake/${PROJECT_NAME}${PROJECT_VERSION}")
+
 add_subdirectory(src)
 
 add_subdirectory(apps)
+
+install(EXPORT ${PROJECT_NAME} DESTINATION "${LIB_DEST}")
