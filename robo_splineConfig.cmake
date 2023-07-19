@@ -1,5 +1,5 @@
 # these are autogenerate by cmake
-include("${CMAKE_CURRENT_LIST_DIR}/robo_spline-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/robo_splineTargets.cmake")
 
 get_target_property(robo_spline_INCLUDE_DIRS robo_spline::robo_spline INTERFACE_INCLUDE_DIRECTORIES)
 
