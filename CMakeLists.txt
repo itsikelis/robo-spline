@@ -15,33 +15,55 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Ensure -std=c++xx instead of -std=g++xx
     set(CMAKE_CXX_EXTENSIONS OFF)
 
-    # Support folders in IDEs
-    # set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-    # Testing only available if this is the main app
-    # Note this needs to be done in the main CMakeLists
-    # since it calls enable_testing, which must be in the
-    # main CMakeLists.
-    # include(CTest)
-
-    # Docs only available if this is the main app
-    find_package(Doxygen)
-    if(Doxygen_FOUND)
-      add_subdirectory(docs)
-    else()
-      message(STATUS "Doxygen not found, not building docs")
-    endif()
+    # # Docs only available if this is the main app
+    # find_package(Doxygen)
+    # if(Doxygen_FOUND)
+    #   add_subdirectory(docs)
+    # else()
+    #   message(STATUS "Doxygen not found, not building docs")
+    # endif()
 endif()
 
 # Include Eigen.
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
-set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/robo_spline/trajectory.hpp")
-set(INCLUDE_DEST "include/${PROJECT_NAME}${PROJECT_VERSION}")
-set(LIB_DEST "lib/cmake/${PROJECT_NAME}${PROJECT_VERSION}")
+include(GNUInstallDirs)
+
+set(config_package_location "share/${PROJECT_NAME}/cmake") # for .cmake find-scripts installs
 
 add_subdirectory(src)
 
 add_subdirectory(apps)
 
-install(EXPORT ${PROJECT_NAME} DESTINATION "${LIB_DEST}")
+# generate the file IfoptConfigVersion.cmake
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+# install the two files in a place where cmake looks for them
+install(
+  FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}-config.cmake"         # self-written
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake" # generated
+  DESTINATION ${config_package_location}
+)
+
+install(
+  EXPORT ${PROJECT_NAME}-targets
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${config_package_location}
+)
+
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
