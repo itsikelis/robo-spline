@@ -1,3 +1,5 @@
+# Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
+
 # Create Library Target.
 add_library(${PROJECT_NAME} STATIC rspl.cpp)
 

@@ -1,3 +1,5 @@
+# Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
+
 add_executable(rspl_test rspl_test.cpp)
 target_compile_features(rspl_test PRIVATE cxx_std_17)
 

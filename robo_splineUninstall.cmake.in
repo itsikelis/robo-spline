@@ -1,3 +1,5 @@
+# Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
+
 if(NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
   message(FATAL_ERROR "Cannot find install manifest: @CMAKE_BINARY_DIR@/install_manifest.txt")
 endif()

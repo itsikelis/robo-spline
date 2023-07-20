@@ -1,4 +1,5 @@
 # Copyright (c) 2023, Ioannis V. Tsikelis, University of Patras. All rights reserved.
+
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 # Declare Project Name, Descritption and Version.
