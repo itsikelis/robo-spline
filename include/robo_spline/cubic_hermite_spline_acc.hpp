@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cubic_hermite_spline.hpp"
+#include <robo_spline/cubic_hermite_spline.hpp>
 
 namespace rspl {
     /**

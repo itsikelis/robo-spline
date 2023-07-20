@@ -7,8 +7,8 @@
 #include <utility>
 #include <vector>
 
-#include "../../src/cubic_hermite_spline.hpp"
-#include "../../src/cubic_hermite_spline_acc.hpp"
+#include <robo_spline/cubic_hermite_spline.hpp>
+#include <robo_spline/cubic_hermite_spline_acc.hpp>
 
 namespace rspl {
     /**
