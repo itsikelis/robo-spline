@@ -34,6 +34,12 @@ namespace rspl {
     public:
         Trajectory() : _total_duration(-1.) {}
 
+        void clear()
+        {
+            _spline_duration_pairs.clear();
+            _total_duration = -1.;
+        }
+
         /**
          * @brief Get the total duration of the trajectory.
          *
