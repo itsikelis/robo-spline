@@ -14,12 +14,14 @@ namespace rspl {
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
         using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
 
-        enum PointIndex {
+        enum class PointIndex {
             P_0,
             V_0,
             P_1,
             V_1
         };
+
+        CubicHermiteSpline() = default;
 
         /**
          * @brief Constructs a cubic Hermite polynomial object using the given initial and final position and velocity vectors.
@@ -117,16 +119,16 @@ namespace rspl {
             const double t2 = t * t;
             const double t3 = t * t2;
 
-            if (idx == P_0) {
+            if (idx == PointIndex::P_0) {
                 return 1. - 3. * t2 + 2. * t3; // derivative w.r.t p0
             }
-            else if (idx == V_0) {
+            else if (idx == PointIndex::V_0) {
                 return t - 2. * t2 + t3; // derivative w.r.t v0
             }
-            else if (idx == P_1) {
+            else if (idx == PointIndex::P_1) {
                 return 3. * t2 - 2. * t3; // derivative w.r.t p1
             }
-            else if (idx == V_1) {
+            else if (idx == PointIndex::V_1) {
                 return -t2 + t3; // derivative w.r.t v1
             }
             else {
@@ -162,16 +164,16 @@ namespace rspl {
         {
             const double t2 = t * t;
 
-            if (idx == P_0) {
+            if (idx == PointIndex::P_0) {
                 return -6. * t + 6. * t2; // derivative w.r.t p0
             }
-            else if (idx == V_0) {
+            else if (idx == PointIndex::V_0) {
                 return 1. - 4. * t + 3. * t2; // derivative w.r.t v0
             }
-            else if (idx == P_1) {
+            else if (idx == PointIndex::P_1) {
                 return 6. * t - 6. * t2; // derivative w.r.t p1
             }
-            else if (idx == V_1) {
+            else if (idx == PointIndex::V_1) {
                 return -2. * t + 3. * t2; // derivative w.r.t v1
             }
             else {
@@ -204,16 +206,16 @@ namespace rspl {
 
         virtual double deriv_acc(double t, PointIndex idx) const
         {
-            if (idx == P_0) {
+            if (idx == PointIndex::P_0) {
                 return -6. + 12. * t; // derivative w.r.t p0
             }
-            else if (idx == V_0) {
+            else if (idx == PointIndex::V_0) {
                 return -4. + 6. * t; // derivative w.r.t v0
             }
-            else if (idx == P_1) {
+            else if (idx == PointIndex::P_1) {
                 return 6. - 12. * t; // derivative w.r.t p1
             }
-            else if (idx == V_1) {
+            else if (idx == PointIndex::V_1) {
                 return -2. + 6. * t; // derivative w.r.t v1
             }
             else {

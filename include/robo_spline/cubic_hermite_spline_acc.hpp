@@ -13,13 +13,7 @@ namespace rspl {
     public:
         using VecD = typename CubicHermiteSpline<D>::VecD;
         using Vector = typename CubicHermiteSpline<D>::Vector;
-
-        enum PointIndex {
-            P_0,
-            V_0,
-            P_1,
-            V_1
-        };
+        using PointIndex = typename CubicHermiteSpline<D>::PointIndex;
 
         /**
          * @brief Constructs a cubic Hermite spline object given initial position, velocity and acceleration and the final position.
@@ -29,7 +23,7 @@ namespace rspl {
          * @param a0 The initial acceleration vector.
          * @param p1 The final position vector.
          */
-        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1)
+        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1) : CubicHermiteSpline<D>()
         {
             Vector x(D * 4);
             x << p0, v0, a0, p1;
@@ -84,16 +78,16 @@ namespace rspl {
             const double t2 = t * t;
             const double t3 = t * t2;
 
-            if (wrt == P_0) {
+            if (wrt == PointIndex::P_0) {
                 return 1. - t3; // derivative w.r.t p0
             }
-            else if (wrt == V_0) {
+            else if (wrt == PointIndex::V_0) {
                 return t - t3; // derivative w.r.t v0
             }
-            else if (wrt == P_1) {
+            else if (wrt == PointIndex::P_1) {
                 return 0.5 * t2 - 0.5 * t3; // derivative w.r.t p1
             }
-            else if (wrt == V_1) {
+            else if (wrt == PointIndex::V_1) {
                 return t3; // derivative w.r.t v1
             }
             else {
@@ -129,16 +123,16 @@ namespace rspl {
         {
             const double t2 = t * t;
 
-            if (wrt == P_0) {
+            if (wrt == PointIndex::P_0) {
                 return -3. * t2; // derivative w.r.t p0
             }
-            else if (wrt == V_0) {
+            else if (wrt == PointIndex::V_0) {
                 return 1. - 3. * t2; // derivative w.r.t v0
             }
-            else if (wrt == P_1) {
+            else if (wrt == PointIndex::P_1) {
                 return t - 1.5 * t2; // derivative w.r.t a0
             }
-            else if (wrt == V_1) {
+            else if (wrt == PointIndex::V_1) {
                 return 3. * t2; // derivative w.r.t p1
             }
             else {
@@ -171,16 +165,16 @@ namespace rspl {
 
         double deriv_acc(double t, PointIndex wrt) const override
         {
-            if (wrt == P_0) {
+            if (wrt == PointIndex::P_0) {
                 return -6. * t; // derivative w.r.t p0
             }
-            else if (wrt == V_0) {
+            else if (wrt == PointIndex::V_0) {
                 return -6. * t; // derivative w.r.t v0
             }
-            else if (wrt == P_1) {
+            else if (wrt == PointIndex::P_1) {
                 return 1. - 3. * t; // derivative w.r.t a0
             }
-            else if (wrt == V_1) {
+            else if (wrt == PointIndex::V_1) {
                 return 6. * t;
                 ; // derivative w.r.t p1
             }

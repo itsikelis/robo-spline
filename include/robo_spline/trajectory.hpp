@@ -90,11 +90,11 @@ namespace rspl {
         {
             // Check if it's the first point added to trajectory.
             if (_total_duration < 0.) {
-                std::cerr << "No initial velocity and acceleration specified for first point in Trajectory! Assuming 0." << std::endl;
+                // std::cerr << "No initial velocity and acceleration specified for first point in Trajectory! Assuming 0." << std::endl;
                 _last_vel = VecD::Zero();
 
                 if (duration != 0.) {
-                    std::cerr << "You cannot have a duration > 0. for the initial point! Defaulting to 0." << std::endl;
+                    // std::cerr << "You cannot have a duration > 0. for the initial point! Defaulting to 0." << std::endl;
                 }
 
                 _last_pos = next_pos;
