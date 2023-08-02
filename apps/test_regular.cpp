@@ -31,23 +31,23 @@ int main()
 
     std::cout << "Compare Velocities:" << std::endl;
     for (size_t i = 0; i < pols.size() - 1; i++) {
-        std::cout << i << ": " << pols[i].spline->velocity(1.).transpose() << std::endl;
-        std::cout << (i + 1) << ": " << pols[i + 1].spline->velocity(0.).transpose() << std::endl;
+        std::cout << i << ": " << pols[i]->velocity(pols[i]->duration()).transpose() << std::endl;
+        std::cout << (i + 1) << ": " << pols[i + 1]->velocity(0.).transpose() << std::endl;
     }
 
     std::cout << "Compare Accelerations:" << std::endl;
     for (size_t i = 0; i < pols.size() - 1; i++) {
-        std::cout << i << ": " << pols[i].spline->acceleration(1.).transpose() << std::endl;
-        std::cout << (i + 1) << ": " << pols[i + 1].spline->acceleration(0.).transpose() << std::endl;
+        std::cout << i << ": " << pols[i]->acceleration(pols[i]->duration()).transpose() << std::endl;
+        std::cout << (i + 1) << ": " << pols[i + 1]->acceleration(0.).transpose() << std::endl;
     }
 
     std::cout << "Derivatives:" << std::endl;
     size_t idx = 0;
-    std::cout << pols[idx].spline->deriv_pos(0.125).transpose() << std::endl
+    std::cout << pols[idx]->deriv_pos(0.125).transpose() << std::endl
               << std::endl;
-    std::cout << pols[idx].spline->deriv_vel(0.125).transpose() << std::endl
+    std::cout << pols[idx]->deriv_vel(0.125).transpose() << std::endl
               << std::endl;
-    std::cout << pols[idx].spline->deriv_acc(0.125).transpose() << std::endl
+    std::cout << pols[idx]->deriv_acc(0.125).transpose() << std::endl
               << std::endl;
 
     return 0;

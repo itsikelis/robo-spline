@@ -13,7 +13,6 @@ namespace rspl {
     public:
         using VecD = typename CubicHermiteSpline<D>::VecD;
         using Vector = typename CubicHermiteSpline<D>::Vector;
-        using PointIndex = typename CubicHermiteSpline<D>::PointIndex;
 
         /**
          * @brief Constructs a cubic Hermite spline object given initial position, velocity and acceleration and the final position.
@@ -22,20 +21,22 @@ namespace rspl {
          * @param v0 The initial velocity vector.
          * @param a0 The initial acceleration vector.
          * @param p1 The final position vector.
+         * @param T The duration of the polynomial.
          */
-        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1) : CubicHermiteSpline<D>()
+        CubicHermiteSplineAcc(const VecD& p0, const VecD& v0, const VecD& a0, const VecD& p1, double T = 1.) : CubicHermiteSpline<D>()
         {
             Vector x(D * 4);
             x << p0, v0, a0, p1;
-            this->calc_coeffs_from_points(x);
+            this->calc_coeffs_from_points(x, T);
         }
 
         /**
          * @brief Set spline initial and final points and their derivatives.
          *
          * @param x Parameters vector (initial and final positions, initial velocity and acceleration).
+         * @param T The duration of the polynomial.
          */
-        void calc_coeffs_from_points(const Vector& x) override
+        void calc_coeffs_from_points(const Vector& x, double T = 1.) override
         {
             // assume x.size() == D*4
             this->_p0 = x.head(D);
@@ -43,10 +44,15 @@ namespace rspl {
             this->_v1 = x.segment(2 * D, D); // _v1 is treated as a0
             this->_p1 = x.tail(D);
 
+            const double o_T = 1. / T;
+            const double o_T2 = 1. / (T * T);
+            const double o_T3 = 1. / (T * T * T);
+
             this->_c0 = this->_p0;
             this->_c1 = this->_v0;
             this->_c2 = this->_v1 / 2.; // _v1 is treated as a0
-            this->_c3 = this->_p1 - this->_c2 - this->_c1 - this->_c0;
+            this->_c3 = this->_p1 * o_T3 - this->_c2 * o_T - this->_c1 * o_T2 - this->_c0 * o_T3;
+            this->_T = T;
         }
 
         /**
@@ -61,39 +67,20 @@ namespace rspl {
             const double t3 = t * t2;
             Vector deriv = Vector::Zero(4);
 
+            const double o_T = 1. / this->_T;
+            const double o_T2 = 1. / (this->_T * this->_T);
+            const double o_T3 = 1. / (this->_T * this->_T * this->_T);
+
             // initial position derivative
-            deriv[0] = 1. - t3;
+            deriv[0] = 1. - t3 * o_T3;
             // initial velocity derivative
-            deriv[1] = t - t3;
+            deriv[1] = t - t3 * o_T2;
             // initial acceleration derivative
-            deriv[2] = 0.5 * t2 - 0.5 * t3;
+            deriv[2] = 0.5 * t2 - 0.5 * t3 * o_T;
             // final position derivative
-            deriv[3] = t3;
+            deriv[3] = t3 * o_T3;
 
             return deriv;
-        }
-
-        double deriv_pos(double t, PointIndex wrt) const override
-        {
-            const double t2 = t * t;
-            const double t3 = t * t2;
-
-            if (wrt == PointIndex::P_0) {
-                return 1. - t3; // derivative w.r.t p0
-            }
-            else if (wrt == PointIndex::V_0) {
-                return t - t3; // derivative w.r.t v0
-            }
-            else if (wrt == PointIndex::P_1) {
-                return 0.5 * t2 - 0.5 * t3; // derivative w.r.t p1
-            }
-            else if (wrt == PointIndex::V_1) {
-                return t3; // derivative w.r.t v1
-            }
-            else {
-                std::cerr << " No such partial derivative index!" << std::endl;
-                return -1;
-            }
         }
 
         /**
@@ -107,38 +94,20 @@ namespace rspl {
             const double t2 = t * t;
             Vector deriv = Vector::Zero(4);
 
+            const double o_T = 1. / this->_T;
+            const double o_T2 = 1. / (this->_T * this->_T);
+            const double o_T3 = 1. / (this->_T * this->_T * this->_T);
+
             // initial position derivative
-            deriv[0] = -3. * t2;
+            deriv[0] = -3. * t2 * o_T3;
             // initial velocity derivative
-            deriv[1] = 1. - 3. * t2;
+            deriv[1] = 1. - 3. * t2 * o_T2;
             // initial acceleration derivative
-            deriv[2] = t - 1.5 * t2;
+            deriv[2] = t - 1.5 * t2 * o_T;
             // final position derivative
-            deriv[3] = 3. * t2;
+            deriv[3] = 3. * t2 * o_T3;
 
             return deriv;
-        }
-
-        double deriv_vel(double t, PointIndex wrt) const override
-        {
-            const double t2 = t * t;
-
-            if (wrt == PointIndex::P_0) {
-                return -3. * t2; // derivative w.r.t p0
-            }
-            else if (wrt == PointIndex::V_0) {
-                return 1. - 3. * t2; // derivative w.r.t v0
-            }
-            else if (wrt == PointIndex::P_1) {
-                return t - 1.5 * t2; // derivative w.r.t a0
-            }
-            else if (wrt == PointIndex::V_1) {
-                return 3. * t2; // derivative w.r.t p1
-            }
-            else {
-                std::cerr << " No such partial derivative index!" << std::endl;
-                return -1;
-            }
         }
 
         /**
@@ -151,37 +120,20 @@ namespace rspl {
         {
             Vector deriv = Vector::Zero(4);
 
+            const double o_T = 1. / this->_T;
+            const double o_T2 = 1. / (this->_T * this->_T);
+            const double o_T3 = 1. / (this->_T * this->_T * this->_T);
+
             // initial position derivative
-            deriv[0] = -6. * t;
+            deriv[0] = -6. * t * o_T3;
             // initial velocity derivative
-            deriv[1] = -6. * t;
+            deriv[1] = -6. * t * o_T2;
             // initial acceleration derivative
-            deriv[2] = 1. - 3. * t;
+            deriv[2] = 1. - 3. * t * o_T;
             // final position derivative
-            deriv[3] = 6. * t;
+            deriv[3] = 6. * t * o_T3;
 
             return deriv;
-        }
-
-        double deriv_acc(double t, PointIndex wrt) const override
-        {
-            if (wrt == PointIndex::P_0) {
-                return -6. * t; // derivative w.r.t p0
-            }
-            else if (wrt == PointIndex::V_0) {
-                return -6. * t; // derivative w.r.t v0
-            }
-            else if (wrt == PointIndex::P_1) {
-                return 1. - 3. * t; // derivative w.r.t a0
-            }
-            else if (wrt == PointIndex::V_1) {
-                return 6. * t;
-                ; // derivative w.r.t p1
-            }
-            else {
-                std::cerr << " No such partial derivative index!" << std::endl;
-                return -1;
-            }
         }
 
         /**
@@ -224,8 +176,9 @@ namespace rspl {
          * @brief Set spline coefficients manually.
          *
          * @param x Coefficients vector.
+         * @param T The duration of the polynomial.
          */
-        void set_coeffs(const Vector& x) override
+        void set_coeffs(const Vector& x, double T = 1.) override
         {
             // assume x.size() == D*4
             this->_c0 = x.head(D);
@@ -236,7 +189,9 @@ namespace rspl {
             this->_p0 = this->position(0.);
             this->_v0 = this->velocity(0.);
             this->_v1 = this->acceleration(0.); // _v1 is treated as a0
-            this->_p1 = this->position(1.);
+            this->_p1 = this->position(T);
+
+            this->_T = T;
         }
     };
 
