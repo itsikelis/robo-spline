@@ -72,7 +72,10 @@ namespace rspl {
          */
         VecD position(double t) const
         {
-            return _c0 + (_c1 * t) + (_c2 * t * t) + (_c3 * t * t * t);
+            const double t2 = t * t;
+            const double t3 = t * t2;
+
+            return _c0 + (_c1 * t) + (_c2 * t2) + (_c3 * t3);
         }
 
         /**
@@ -83,7 +86,7 @@ namespace rspl {
          */
         VecD velocity(double t) const
         {
-            return _c1 + (2 * _c2 * t) + (3 * _c3 * t * t);
+            return _c1 + (2. * _c2 * t) + (3. * _c3 * t * t);
         }
 
         /**
@@ -94,7 +97,7 @@ namespace rspl {
          */
         VecD acceleration(double t) const
         {
-            return (2 * _c2) + (6 * _c3 * t);
+            return (2. * _c2) + (6. * _c3 * t);
         }
 
         /**

@@ -99,7 +99,7 @@ namespace rspl {
             }
 
             VecD a0;
-            if (_total_duration == 0) // We assume zero initial acceleration!
+            if (_total_duration < 1e-12) // We assume zero initial acceleration!
                 a0 = VecD::Zero();
             else
                 a0 = _splines.back()->acceleration(_splines.back()->duration());
