@@ -50,5 +50,12 @@ int main()
     std::cout << pols[idx]->deriv_acc(0.125).transpose() << std::endl
               << std::endl;
 
+    std::cout << traj.jacobian_pos(0.125).second << std::endl
+              << std::endl;
+    std::cout << traj.jacobian_vel(0.125).second << std::endl
+              << std::endl;
+    std::cout << traj.jacobian_acc(0.125).second << std::endl
+              << std::endl;
+
     return 0;
 }

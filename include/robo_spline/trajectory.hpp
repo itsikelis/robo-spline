@@ -21,6 +21,7 @@ namespace rspl {
     public:
         using VecD = typename CubicHermiteSpline<D>::VecD;
         using Vector = typename CubicHermiteSpline<D>::Vector;
+        using Jacobian = typename CubicHermiteSpline<D>::Jacobian;
         using Time = double;
         using SplineIndex = unsigned int;
         using SplinePtr = std::shared_ptr<CubicHermiteSpline<D>>;
@@ -161,7 +162,7 @@ namespace rspl {
          * @brief Get the position derivative of the trajectory at time t.
          *
          * @param t The time to evaluate the derivative at.
-         * @return A pair containing a 4D vector containing the position derivative at the given time amd the current polynomial index.
+         * @return A pair containing a 4D vector containing the position derivative at the given time and the current polynomial index.
          */
         std::pair<SplineIndex, Vector> deriv_pos(double t) const
         {
@@ -170,6 +171,23 @@ namespace rspl {
             Time t_norm = pair.second;
 
             Vector deriv = _splines[idx]->deriv_pos(t_norm);
+
+            return std::make_pair(idx, deriv);
+        }
+
+        /**
+         * @brief Get the position jacobian of the trajectory at time t.
+         *
+         * @param t The time to evaluate the derjacobianivative at.
+         * @return A pair containing the position jacobian at the given time and the current polynomial index.
+         */
+        std::pair<SplineIndex, Jacobian> jacobian_pos(double t) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Jacobian deriv = _splines[idx]->jacobian_pos(t_norm);
 
             return std::make_pair(idx, deriv);
         }
@@ -192,6 +210,23 @@ namespace rspl {
         }
 
         /**
+         * @brief Get the velocity jacobian of the trajectory at time t.
+         *
+         * @param t The time to evaluate the derjacobianivative at.
+         * @return A pair containing the velocity jacobian at the given time and the current polynomial index.
+         */
+        std::pair<SplineIndex, Jacobian> jacobian_vel(double t) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Jacobian deriv = _splines[idx]->jacobian_vel(t_norm);
+
+            return std::make_pair(idx, deriv);
+        }
+
+        /**
          * @brief Get the acceleration derivative of the trajectory at time t.
          *
          * @param t The time to evaluate the derivative at.
@@ -204,6 +239,23 @@ namespace rspl {
             Time t_norm = pair.second;
 
             Vector deriv = _splines[idx]->deriv_acc(t_norm);
+
+            return std::make_pair(idx, deriv);
+        }
+
+        /**
+         * @brief Get the acceleration jacobian of the trajectory at time t.
+         *
+         * @param t The time to evaluate the derjacobianivative at.
+         * @return A pair containing the acceleration jacobian at the given time and the current polynomial index.
+         */
+        std::pair<SplineIndex, Jacobian> jacobian_acc(double t) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Jacobian deriv = _splines[idx]->jacobian_acc(t_norm);
 
             return std::make_pair(idx, deriv);
         }
