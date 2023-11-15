@@ -12,7 +12,8 @@ namespace rspl {
     class CubicHermiteSpline {
     public:
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
-        using Vector = Eigen::Matrix<double, -1, 1>; // X dimensional Vector.
+        using Vector = Eigen::Matrix<double, -1, 1>; // dynamic Vector.
+        using Jacobian = Eigen::Matrix<double, -1, -1>; // dynamic Matrix.
 
         CubicHermiteSpline() = default;
 
@@ -129,6 +130,27 @@ namespace rspl {
         }
 
         /**
+         * @brief Get the position jacobian of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual Jacobian jacobian_pos(double t) const
+        {
+            Vector deriv = deriv_pos(t);
+
+            Jacobian jac = Jacobian::Zero(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
+        }
+
+        /**
          * @brief Get the velocity derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
@@ -156,6 +178,27 @@ namespace rspl {
         }
 
         /**
+         * @brief Get the velocity jacobian of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual Jacobian jacobian_vel(double t) const
+        {
+            Vector deriv = deriv_vel(t);
+
+            Jacobian jac = Jacobian::Zero(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
+        }
+
+        /**
          * @brief Get the acceleration derivative of the polynomial at time t.
          *
          * @param t The time to evaluate the derivative at.
@@ -179,6 +222,27 @@ namespace rspl {
             deriv[3] = -2. * o_T + 6. * t * o_T2;
 
             return deriv;
+        }
+
+        /**
+         * @brief Get the acceleration jacobian of the polynomial at time t.
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual Jacobian jacobian_acc(double t) const
+        {
+            Vector deriv = deriv_acc(t);
+
+            Jacobian jac = Jacobian::Zero(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
         }
 
         /**
