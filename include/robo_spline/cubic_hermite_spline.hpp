@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 namespace rspl {
     /**
@@ -14,6 +15,7 @@ namespace rspl {
         using VecD = Eigen::Matrix<double, D, 1>; // D dimensional Vector.
         using Vector = Eigen::Matrix<double, -1, 1>; // dynamic Vector.
         using Jacobian = Eigen::Matrix<double, -1, -1>; // dynamic Matrix.
+        using SparseJacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>; // dynamic Sparse Matrix.
 
         CubicHermiteSpline() = default;
 
@@ -135,7 +137,7 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A matrix containing the jacobian at the given time.
          */
-        virtual Jacobian jacobian_pos(double t) const
+        virtual Jacobian jacobian_dense_pos(double t) const
         {
             Vector deriv = deriv_pos(t);
 
@@ -144,6 +146,27 @@ namespace rspl {
             for (unsigned int i = 0; i < D; i++) {
                 for (unsigned int j = 0; j < 4; j++) {
                     jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
+        }
+
+        /**
+         * @brief Get the position jacobian of the polynomial at time t. (SparseMatrix version)
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual SparseJacobian jacobian_pos(double t) const
+        {
+            Vector deriv = deriv_pos(t);
+
+            SparseJacobian jac(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac.coeffRef(i, i + j * D) = deriv[j];
                 }
             }
 
@@ -183,7 +206,7 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A matrix containing the jacobian at the given time.
          */
-        virtual Jacobian jacobian_vel(double t) const
+        virtual Jacobian jacobian_dense_vel(double t) const
         {
             Vector deriv = deriv_vel(t);
 
@@ -192,6 +215,27 @@ namespace rspl {
             for (unsigned int i = 0; i < D; i++) {
                 for (unsigned int j = 0; j < 4; j++) {
                     jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
+        }
+
+        /**
+         * @brief Get the velocity jacobian of the polynomial at time t. (SparseMatrix version)
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual SparseJacobian jacobian_vel(double t) const
+        {
+            Vector deriv = deriv_vel(t);
+
+            SparseJacobian jac(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac.coeffRef(i, i + j * D) = deriv[j];
                 }
             }
 
@@ -230,7 +274,7 @@ namespace rspl {
          * @param t The time to evaluate the derivative at.
          * @return A matrix containing the jacobian at the given time.
          */
-        virtual Jacobian jacobian_acc(double t) const
+        virtual Jacobian jacobian_dense_acc(double t) const
         {
             Vector deriv = deriv_acc(t);
 
@@ -239,6 +283,27 @@ namespace rspl {
             for (unsigned int i = 0; i < D; i++) {
                 for (unsigned int j = 0; j < 4; j++) {
                     jac(i, i + j * D) = deriv[j];
+                }
+            }
+
+            return jac;
+        }
+
+        /**
+         * @brief Get the acceleration jacobian of the polynomial at time t. (SparseMatrix version)
+         *
+         * @param t The time to evaluate the derivative at.
+         * @return A matrix containing the jacobian at the given time.
+         */
+        virtual SparseJacobian jacobian_acc(double t) const
+        {
+            Vector deriv = deriv_acc(t);
+
+            SparseJacobian jac(D, D * 4);
+
+            for (unsigned int i = 0; i < D; i++) {
+                for (unsigned int j = 0; j < 4; j++) {
+                    jac.coeffRef(i, i + j * D) = deriv[j];
                 }
             }
 
