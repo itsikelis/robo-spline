@@ -9,11 +9,6 @@ project(
     DESCRIPTION "A Cubic Hermite Spline Library for Robot Trajectory Optimisation."
     LANGUAGES CXX)
 
-# Set compiler flags.
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF) # Ensure non compiler specific flags (e.g. -std=c++xx instead of -std=g++xx).
-
 # Generate Docs
 # find_package(Doxygen)
 # if(Doxygen_FOUND)
