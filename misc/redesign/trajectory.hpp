@@ -6,7 +6,7 @@
 #include "types.hpp"
 
 namespace rspl {
-    template <typename _SplineType, size_t _NumKnots>
+    template <size_t _Dim, typename _SplineType<_Dim>, size_t _NumKnots>
     class Trajectory {
     public:
         using VecD = typename HermiteSpline<_Dim>::VecD;
@@ -17,15 +17,18 @@ namespace rspl {
     public:
         Trajectory() : _total_duration(-1.) {}
 
-        Trajectory(const Vector& knot_points, const Vector& times)
+        Trajectory(const Vector& knot_points, const Vector& times) : _num_vars_total(knot_points.rows());
         {
             // Todo:
             // assert knot_points and times size are correct.
             // assert NumKnots - 1 == times.size()
 
+            // Keep num of total vars
+            std::cout << "Num of total vars: " << _num_vars_total << std::endl;
+
             // Create a temp spline object to get num of knots needed (4 for cubic, 6 for quintic etc).
             _SplineType temp;
-            const size_t R = temp.knots_required();
+            const size_t R = temp.order() + 1;
             const size_t D = temp.dimension();
 
             const size_t iters = _NumKnots - 1;
@@ -68,6 +71,29 @@ namespace rspl {
             return _splines[idx]->acceleration(t_norm);
         }
 
+        Jacobian jacobian_position(Time t) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Jacobian spline_jac = _splines[idx]->jacobian_pos(t_norm);
+
+            Jacobian full_jac(GetRows(), 3);
+            full_jac.middleRows(idx * _Dim, jac.cols()) = jac.transpose();
+
+            return fullJac.transpose();
+        }
+
+        Jacobian jacobianPosition(double t) const
+        {
+            rspl::Trajectory3D::SparseJacobian jac;
+            rspl::Trajectory3D::SplineIndex index;
+            std::tie(index, jac) = _traj.jacobian_pos(t);
+
+            // std::cout << jac << std::endl;
+        }
+
         void clear()
         {
             _splines.clear();
@@ -105,6 +131,7 @@ namespace rspl {
 
     protected:
         static constexpr double _epsilon = 1e-12;
+        const size_t _num_vars_total;
 
         Time _total_duration;
         std::vector<SplinePtr> _splines;

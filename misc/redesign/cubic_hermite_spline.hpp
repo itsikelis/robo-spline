@@ -32,8 +32,7 @@ namespace rspl {
             _c3 = -2. * _p1 * o_T3 + 2. * _p0 * o_T3 + _v0 * o_T2 + _v1 * o_T2;
         }
 
-        inline SplineType type() const override { return _type; }
-        inline size_t knots_required() const override { return 4; }
+        inline size_t order() const override { return 3; }
 
         inline size_t dimension() const override { return _D; }
 
