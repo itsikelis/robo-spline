@@ -4,12 +4,13 @@
 #include <cstdint>
 
 namespace rspl {
-    template <size_t _D>
+    template <size_t _Dim>
     class HermiteSpline {
     public:
-        using VecD = Eigen::Matrix<double, _D, 1>;
+        using VecD = Eigen::Matrix<double, _Dim, 1>;
 
         virtual SplineType type() const = 0;
+        virtual size_t knots_required() const = 0;
 
         virtual size_t dimension() const = 0;
         virtual Time duration() const = 0;

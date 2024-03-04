@@ -7,6 +7,7 @@ namespace rspl {
     class CubicHermiteSpline : public HermiteSpline<_D> {
     public:
         using VecD = typename rspl::HermiteSpline<_D>::VecD;
+        // using NumReqKnots = 4;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)
         {
@@ -32,6 +33,7 @@ namespace rspl {
         }
 
         inline SplineType type() const override { return _type; }
+        inline size_t knots_required() const override { return 4; }
 
         inline size_t dimension() const override { return _D; }
 
