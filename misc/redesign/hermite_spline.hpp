@@ -13,6 +13,7 @@ namespace rspl {
 
         virtual size_t dimension() const = 0;
         virtual Time duration() const = 0;
+        virtual SplineType type() const = 0;
 
         // virtual Vector knot_points() const = 0;
         // virtual Vector knot_points_start() const = 0;

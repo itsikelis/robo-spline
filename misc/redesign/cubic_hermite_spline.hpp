@@ -8,6 +8,7 @@ namespace rspl {
     public:
         using VecD = typename rspl::HermiteSpline<_D>::VecD;
         // using NumReqKnots = 4;
+        CubicHermiteSpline() = default;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)
         {
@@ -33,6 +34,7 @@ namespace rspl {
         }
 
         inline size_t order() const override { return 3; }
+        inline SplineType type() const override { return _type; }
 
         inline size_t dimension() const override { return _D; }
 
@@ -113,7 +115,7 @@ namespace rspl {
             const double o_T2 = 1. / (_T * _T);
             const double o_T3 = 1. / (_T * _T * _T);
 
-            // Position spline derivatives w.r.t. x0, v0, x1, v1.
+            // Position spline derivatives w.r.t. p0, v0, p1, v1.
             deriv[0] = 1. - 3. * t2 * o_T2 + 2. * t3 * o_T3;
             deriv[1] = t - 2. * t2 * o_T + t3 * o_T2;
             deriv[2] = 3. * t2 * o_T2 - 2. * t3 * o_T3;

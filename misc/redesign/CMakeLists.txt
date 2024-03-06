@@ -2,6 +2,8 @@
 
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Declare Project Name, Descritption and Version.
 project(
     robo_spline
