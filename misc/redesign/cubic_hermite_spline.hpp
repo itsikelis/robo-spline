@@ -171,7 +171,7 @@ namespace rspl {
         // Spline duration.
         Time _T;
 
-        // Spline polynomial coefficients.
+        // Spline coefficients.
         VecD _c0;
         VecD _c1;
         VecD _c2;

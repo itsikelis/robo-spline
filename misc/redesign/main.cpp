@@ -80,30 +80,34 @@ int main()
 
     // std::cout << pols[idx].spline->deriv_pos(0.125).transpose();
 
-    const size_t num_knot_points = 2;
+    const size_t num_knot_points = 3;
     const size_t dim = 2;
 
     Eigen::Vector2d p0(0., 0.);
-    Eigen::Vector2d p1(1., 2.);
-
     Eigen::Vector2d v0(0., 0.);
-    Eigen::Vector2d v1(0., 0.);
+
+    Eigen::Vector2d p1(1., 2.);
+    Eigen::Vector2d v1(1., 1.);
+
+    Eigen::Vector2d p2(2., 3.);
+    Eigen::Vector2d v2(0., 0.);
 
     double t0 = 3.;
+    double t1 = 2.;
 
     Eigen::VectorXd points(num_knot_points * 2 * dim);
     Eigen::VectorXd times(num_knot_points - 1);
 
-    points << p0, v0, p1, v1;
-    times << t0;
+    points << p0, v0, p1, v1, p2, v2;
+    times << t0, t1;
 
     rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points> traj(points, times);
 
     // Test derivatives
-    double t = 1.2;
+    double t = 3.5;
     size_t idx;
     rspl::Jacobian jac_pos;
-    std::tie(idx, jac_pos) = traj.jacobian_position(t);
+    std::tie(idx, jac_pos) = traj.jacobian_velocity(t);
 
     Eigen::MatrixXd jac_pos_est = Eigen::MatrixXd(dim, points.rows());
 
@@ -117,11 +121,18 @@ int main()
         auto traj_p = rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points>(points_p, times);
         auto traj_m = rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points>(points_m, times);
 
-        auto pos_p = traj_p.position(t);
-        auto pos_m = traj_m.position(t);
+        size_t order = 1;
+        auto pos_p = traj_p.velocity(t);
+        auto pos_m = traj_m.velocity(t);
 
         jac_pos_est.col(i) = (pos_p - pos_m) / (2 * eps);
     }
+
+    std::cout << "Jacobian Block:" << std::endl;
+    std::cout << Eigen::MatrixXd(jac_pos) << std::endl;
+
+    std::cout << "Jacobian Block Approximation:" << std::endl;
+    std::cout << jac_pos_est << std::endl;
 
     std::cout << "Absolute norm of difference: (eps: " << eps << ")" << std::endl;
     std::cout << abs((jac_pos - jac_pos_est).norm()) << std::endl;

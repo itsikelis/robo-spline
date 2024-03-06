@@ -33,6 +33,25 @@ namespace rspl {
             generate_trajectory_from_points(knot_points, times, _spline_type);
         }
 
+        inline VecD evaluate(Time t, size_t order)
+        {
+            switch (order) {
+            case 0:
+                return position(t);
+                break;
+            case 1:
+                return velocity(t);
+                break;
+            case 2:
+                return acceleration(t);
+                break;
+            default:
+                std::cerr << "Invalid derivative order!" << std::endl;
+                return VecD::Zero();
+                break;
+            }
+        }
+
         // @brief Get position at time t.
         VecD position(Time t) const
         {
