@@ -19,11 +19,15 @@ namespace rspl {
         // virtual Vector knot_points_start() const = 0;
         // virtual Vector knot_points_end() const = 0;
 
+        // virtual VecD evaluate(Time t, size_t order) = 0;
+
         virtual VecD position(Time t) const = 0;
         virtual VecD velocity(Time t) const = 0;
         virtual VecD acceleration(Time t) const = 0;
         // virtual VecD jerk(Time t) const = 0;
         // virtual VecD snap(Time t) const = 0;
+
+        // virtual Jacobian jacobian_block(Time t, size_t order) const = 0;
 
         virtual Jacobian jacobian_position(Time t) const = 0;
         virtual Jacobian jacobian_velocity(Time t) const = 0;

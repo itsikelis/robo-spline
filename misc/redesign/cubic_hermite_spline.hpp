@@ -3,20 +3,21 @@
 
 namespace rspl {
 
-    template <size_t _D>
-    class CubicHermiteSpline : public HermiteSpline<_D> {
+    template <size_t _Dim>
+    class CubicHermiteSpline : public HermiteSpline<_Dim> {
     public:
-        using VecD = typename rspl::HermiteSpline<_D>::VecD;
+        using VecD = typename rspl::HermiteSpline<_Dim>::VecD;
+        static const size_t Dim = _Dim;
         // using NumReqKnots = 4;
         CubicHermiteSpline() = default;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)
         {
-            // To-Do Assert knot points is 4 * _D in size.
-            _p0 = knot_points.head(_D); // p0
-            _v0 = knot_points.segment(_D, _D); // v0
-            _p1 = knot_points.segment(2 * _D, _D); // p1
-            _v1 = knot_points.tail(_D); // v1
+            // To-Do Assert knot points is 4 * _Dim in size.
+            _p0 = knot_points.head(_Dim); // p0
+            _v0 = knot_points.segment(_Dim, _Dim); // v0
+            _p1 = knot_points.segment(2 * _Dim, _Dim); // p1
+            _v1 = knot_points.tail(_Dim); // v1
 
             calc_coeffs_from_knot_points();
         }
@@ -36,7 +37,7 @@ namespace rspl {
         inline size_t order() const override { return 3; }
         inline SplineType type() const override { return _type; }
 
-        inline size_t dimension() const override { return _D; }
+        inline size_t dimension() const override { return _Dim; }
 
         inline Time duration() const override { return _T; }
 
@@ -62,11 +63,11 @@ namespace rspl {
         {
             Vector deriv = deriv_pos(t);
 
-            Jacobian jac(_D, _D * 4);
+            Jacobian jac(_Dim, _Dim * 4);
 
-            for (size_t i = 0; i < _D; ++i) {
+            for (size_t i = 0; i < _Dim; ++i) {
                 for (size_t j = 0; j < 4; ++j) {
-                    jac.coeffRef(i, i + j * _D) = deriv[j];
+                    jac.coeffRef(i, i + j * _Dim) = deriv[j];
                 }
             }
 
@@ -77,11 +78,11 @@ namespace rspl {
         {
             Vector deriv = deriv_vel(t);
 
-            Jacobian jac(_D, _D * 4);
+            Jacobian jac(_Dim, _Dim * 4);
 
-            for (size_t i = 0; i < _D; ++i) {
+            for (size_t i = 0; i < _Dim; ++i) {
                 for (size_t j = 0; j < 4; ++j) {
-                    jac.coeffRef(i, i + j * _D) = deriv[j];
+                    jac.coeffRef(i, i + j * _Dim) = deriv[j];
                 }
             }
 
@@ -92,11 +93,11 @@ namespace rspl {
         {
             Vector deriv = deriv_acc(t);
 
-            Jacobian jac(_D, _D * 4);
+            Jacobian jac(_Dim, _Dim * 4);
 
-            for (size_t i = 0; i < _D; ++i) {
+            for (size_t i = 0; i < _Dim; ++i) {
                 for (size_t j = 0; j < 4; ++j) {
-                    jac.coeffRef(i, i + j * _D) = deriv[j];
+                    jac.coeffRef(i, i + j * _Dim) = deriv[j];
                 }
             }
 

@@ -14,10 +14,10 @@ project(
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 add_executable(main main.cpp)
+# add_executable(main2 main2.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PUBLIC Eigen3::Eigen)
 
 # Set compiler flags.
 target_compile_features(main PRIVATE cxx_std_17)
 target_compile_options(main PRIVATE "-Wall;-Wextra;-O3") #-Werror;
-

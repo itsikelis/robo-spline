@@ -1,26 +1,62 @@
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <random>
+
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Sparse>
+
 #include "cubic_hermite_spline.hpp"
 #include "hermite_spline.hpp"
 #include "trajectory.hpp"
-#include <iostream>
+
+Eigen::VectorXd random_uniform_vector(size_t rows, double lower, double upper)
+{
+    std::uniform_real_distribution<double> unif(lower, upper);
+    std::default_random_engine re;
+    re.seed(time(0));
+
+    Eigen::VectorXd rand(rows);
+    for (size_t i = 0; i < rows; ++i) {
+        rand[i] = unif(re);
+    }
+
+    return rand;
+}
+
+template <class _Traj, size_t _KnotPoints, size_t _Dim>
+bool test_duration()
+{
+    std::cout << "Trajectory Duration Test" << std::endl;
+    // for (size_t i = 0; i < static_cast<size_t>(times.rows()); ++i) {
+
+    std::uniform_real_distribution<double> unif_knots(-10., 10.);
+    std::uniform_real_distribution<double> unif_time(0., 3.);
+    std::default_random_engine re;
+    re.seed(time(0));
+
+    const size_t num_knot_points = 3;
+    // const size_t dim = _Traj.dim();
+
+    auto zero = Eigen::Vector3d::Zero();
+
+    Eigen::VectorXd knots = random_uniform_vector(_KnotPoints * 2 * _Dim, -10., 10.);
+    Eigen::VectorXd times = random_uniform_vector(_KnotPoints - 1, 0., 3.);
+
+    rspl::Trajectory<rspl::CubicHermiteSpline<_Dim>, _KnotPoints> traj(knots, times);
+
+    std::cout << "Duration 1, Duration 2 " << std::endl;
+    std::cout << times.sum() << ", " << traj.total_duration() << " (these should be approx. equal)" << std::endl;
+
+    double eps = 1e-12;
+    return (std::abs(times.sum() - traj.total_duration()) < eps);
+}
+
+
 
 int main()
 {
-    // Eigen::VectorXd vec(8);
-    // vec << 0., 0., 0., 0., 1., 1., 0., 0.;
-    // rspl::CubicHermiteSpline<2> spline(vec, 1.);
-
-    // const size_t num_knot_points = 3;
-    // const size_t dim = 2;
-    // Eigen::VectorXd points(num_knot_points * 2 * dim);
-    // Eigen::VectorXd times(num_knot_points - 1);
-
-    // points << 0., 0., 0., 0., 1., 1., 1., 1., 1., 2., 0., 0.;
-    // times << 1., 0.5;
-
-    // rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points> traj(points, times);
-
-    // double total_duration
-    //     = traj.total_duration();
+    srand(static_cast<unsigned int>(time(0)));
 
     // std::cout << "Positions:" << std::endl;
     // for (double t = 0.; t <= (total_duration + 1e-6); t += 0.1) {
@@ -121,21 +157,22 @@ int main()
         auto traj_p = rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points>(points_p, times);
         auto traj_m = rspl::Trajectory<rspl::CubicHermiteSpline<dim>, num_knot_points>(points_m, times);
 
-        size_t order = 1;
         auto pos_p = traj_p.velocity(t);
         auto pos_m = traj_m.velocity(t);
 
         jac_pos_est.col(i) = (pos_p - pos_m) / (2 * eps);
     }
 
-    std::cout << "Jacobian Block:" << std::endl;
-    std::cout << Eigen::MatrixXd(jac_pos) << std::endl;
+    // std::cout << "Jacobian Block:" << std::endl;
+    // std::cout << Eigen::MatrixXd(jac_pos) << std::endl;
 
-    std::cout << "Jacobian Block Approximation:" << std::endl;
-    std::cout << jac_pos_est << std::endl;
+    // std::cout << "Jacobian Block Approximation:" << std::endl;
+    // std::cout << jac_pos_est << std::endl;
 
     std::cout << "Absolute norm of difference: (eps: " << eps << ")" << std::endl;
     std::cout << abs((jac_pos - jac_pos_est).norm()) << std::endl;
+
+    // test_duration<rspl::Trajectory<CubicHermiteSpline<3>, num_knot_points, >, ();
 
     return 0;
 }
