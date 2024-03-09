@@ -7,8 +7,7 @@ namespace rspl {
     class CubicHermiteSpline : public HermiteSpline<_Dim> {
     public:
         using VecD = typename rspl::HermiteSpline<_Dim>::VecD;
-        static const size_t Dim = _Dim;
-        // using NumReqKnots = 4;
+        static const SplineType Type = SplineType::CubicHermite;
         CubicHermiteSpline() = default;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)
@@ -22,26 +21,29 @@ namespace rspl {
             calc_coeffs_from_knot_points();
         }
 
-        inline void calc_coeffs_from_knot_points()
-        {
-            const double o_T = 1. / _T;
-            const double o_T2 = 1. / (_T * _T);
-            const double o_T3 = 1. / (_T * _T * _T);
-
-            _c0 = _p0;
-            _c1 = _v0;
-            _c2 = 3. * _p1 * o_T2 - 3. * _p0 * o_T2 - 2. * _v0 * o_T - _v1 * o_T;
-            _c3 = -2. * _p1 * o_T3 + 2. * _p0 * o_T3 + _v0 * o_T2 + _v1 * o_T2;
-        }
-
         inline size_t order() const override { return 3; }
         inline SplineType type() const override { return _type; }
 
-        inline size_t dimension() const override { return _Dim; }
+        inline size_t dim() const override { return _Dim; }
 
         inline Time duration() const override { return _T; }
 
-        inline VecD position(Time t) const override
+        VecD evaluate(Time t, size_t order) const override
+        {
+            switch (order) {
+            case 0:
+                return pos(t);
+            case 1:
+                return vel(t);
+            case 2:
+                return acc(t);
+            default:
+                std::cerr << "Invalid derivative order!" << std::endl;
+                return VecD::Zero();
+            }
+        }
+
+        inline VecD pos(Time t) const override
         {
             const double t2 = t * t;
             const double t3 = t * t2;
@@ -49,17 +51,32 @@ namespace rspl {
             return _c0 + (_c1 * t) + (_c2 * t2) + (_c3 * t3);
         }
 
-        inline VecD velocity(Time t) const override
+        inline VecD vel(Time t) const override
         {
             return _c1 + (2. * _c2 * t) + (3. * _c3 * t * t);
         }
 
-        inline VecD acceleration(Time t) const override
+        inline VecD acc(Time t) const override
         {
             return (2. * _c2) + (6. * _c3 * t);
         }
 
-        Jacobian jacobian_position(Time t) const override
+        Jacobian jac_block(Time t, size_t order) const override
+        {
+            switch (order) {
+            case 0:
+                return jac_block_pos(t);
+            case 1:
+                return jac_block_vel(t);
+            case 2:
+                return jac_block_acc(t);
+            default:
+                std::cerr << "Invalid derivative order!" << std::endl;
+                return Jacobian();
+            }
+        }
+
+        Jacobian jac_block_pos(Time t) const override
         {
             Vector deriv = deriv_pos(t);
 
@@ -74,7 +91,7 @@ namespace rspl {
             return jac;
         }
 
-        Jacobian jacobian_velocity(Time t) const override
+        Jacobian jac_block_vel(Time t) const override
         {
             Vector deriv = deriv_vel(t);
 
@@ -89,7 +106,7 @@ namespace rspl {
             return jac;
         }
 
-        Jacobian jacobian_acceleration(Time t) const override
+        Jacobian jac_block_acc(Time t) const override
         {
             Vector deriv = deriv_acc(t);
 
@@ -105,6 +122,18 @@ namespace rspl {
         }
 
     protected:
+        inline void calc_coeffs_from_knot_points()
+        {
+            const double o_T = 1. / _T;
+            const double o_T2 = 1. / (_T * _T);
+            const double o_T3 = 1. / (_T * _T * _T);
+
+            _c0 = _p0;
+            _c1 = _v0;
+            _c2 = 3. * _p1 * o_T2 - 3. * _p0 * o_T2 - 2. * _v0 * o_T - _v1 * o_T;
+            _c3 = -2. * _p1 * o_T3 + 2. * _p0 * o_T3 + _v0 * o_T2 + _v1 * o_T2;
+        }
+
         inline Vector deriv_pos(Time t) const
         {
             Vector deriv = Vector::Zero(4);

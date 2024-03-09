@@ -11,26 +11,15 @@ namespace rspl {
     public:
         using VecD = typename _Spline::VecD;
         using SplinePtr = std::shared_ptr<_Spline>;
-        // Number of required knot points for spline (4 for cubic, 6 for quintic etc).
-        // using NumSplineReqKnots = typename _Spline<_Dim>::NumReqKnots;
 
     public:
-        Trajectory() : _total_duration(-1.) {}
+        Trajectory() : _spline_type(_Spline::Type), _dim(_Spline::Dim), _total_duration(-1.) {}
 
-        Trajectory(const Vector& knot_points, const Vector& times) : _num_vars_total(knot_points.rows())
+        Trajectory(const Vector& knot_points, const Vector& times) : _spline_type(_Spline::Type), _dim(_Spline::Dim), _num_vars_total(knot_points.rows()), _total_duration(times.sum())
         {
             // TODO:
             // assert knot_points and times size are correct.
             // assert NumKnots - 1 == times.size()
-
-            // Create a temp spline object to get info needed.
-            _Spline temp;
-            _spline_type = temp.type();
-            _dim = _Spline::Dim;
-
-            _total_duration = times.sum();
-            std::cout << "Inside Traj:" << std::endl;
-            std::cout << _total_duration << std::endl;
 
             generate_trajectory_from_points(knot_points, times, _spline_type);
         }
@@ -39,58 +28,54 @@ namespace rspl {
         {
             switch (order) {
             case 0:
-                return position(t);
-                break;
+                return pos(t);
             case 1:
-                return velocity(t);
-                break;
+                return vel(t);
             case 2:
-                return acceleration(t);
-                break;
+                return acc(t);
             default:
                 std::cerr << "Invalid derivative order!" << std::endl;
                 return VecD::Zero();
-                break;
             }
         }
 
         // @brief Get position at time t.
-        VecD position(double t) const
+        VecD pos(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            return _splines[idx]->position(t_norm);
+            return _splines[idx]->pos(t_norm);
         }
 
         // @brief Get velocity at time t.
-        VecD velocity(double t) const
+        VecD vel(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            return _splines[idx]->velocity(t_norm);
+            return _splines[idx]->vel(t_norm);
         }
 
         // @brief Get acceleration at time t.
-        VecD acceleration(double t) const
+        VecD acc(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            return _splines[idx]->acceleration(t_norm);
+            return _splines[idx]->acc(t_norm);
         }
 
-        std::pair<SplineIndex, Jacobian> jacobian_position(double t) const
+        std::pair<SplineIndex, Jacobian> jac_block_pos(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            Jacobian spline_jac = _splines[idx]->jacobian_position(t_norm);
+            Jacobian spline_jac = _splines[idx]->jac_block_pos(t_norm);
             std::cout << "Jac Rows, Cols:" << spline_jac.rows() << ", " << spline_jac.cols() << std::endl;
 
             size_t col_offset = jac_column_offset(_spline_type);
@@ -100,13 +85,13 @@ namespace rspl {
             return std::make_pair(idx, jac.transpose());
         }
 
-        std::pair<SplineIndex, Jacobian> jacobian_velocity(double t) const
+        std::pair<SplineIndex, Jacobian> jac_block_vel(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            Jacobian spline_jac = _splines[idx]->jacobian_velocity(t_norm);
+            Jacobian spline_jac = _splines[idx]->jac_block_vel(t_norm);
 
             Jacobian jac(_num_vars_total, _dim);
             jac.middleRows(idx * 2 * _dim, spline_jac.cols()) = spline_jac.transpose();
@@ -114,13 +99,13 @@ namespace rspl {
             return std::make_pair(idx, jac.transpose());
         }
 
-        std::pair<SplineIndex, Jacobian> jacobian_acceleration(double t) const
+        std::pair<SplineIndex, Jacobian> jac_block_acc(Time t) const
         {
-            std::pair<SplineIndex, double> pair = normalise_time(t);
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
-            double t_norm = pair.second;
+            Time t_norm = pair.second;
 
-            Jacobian spline_jac = _splines[idx]->jacobian_acceleration(t_norm);
+            Jacobian spline_jac = _splines[idx]->jac_block_acc(t_norm);
 
             Jacobian jac(_num_vars_total, _dim);
             jac.middleRows(idx * 2 * _dim, spline_jac.cols()) = spline_jac.transpose();
@@ -136,6 +121,8 @@ namespace rspl {
 
         std::vector<SplinePtr>& splines() { return _splines; }
 
+        SplinePtr spline(size_t idx) { return _splines[idx]; }
+
         inline size_t dim() const { return _dim; }
 
         inline double total_duration() const { return _total_duration; }
@@ -143,7 +130,7 @@ namespace rspl {
         ~Trajectory() { _splines.clear(); };
 
     protected:
-        std::pair<SplineIndex, double> normalise_time(double t) const
+        std::pair<SplineIndex, Time> normalise_time(Time t) const
         {
             double sum = 0;
             double prev_sum = 0;
@@ -152,7 +139,7 @@ namespace rspl {
                 sum += _splines[i]->duration();
 
                 if (t <= sum - _epsilon) {
-                    double t_norm = (t - prev_sum);
+                    Time t_norm = (t - prev_sum);
                     return std::make_pair(i, t_norm);
                 }
 
@@ -160,7 +147,7 @@ namespace rspl {
             }
 
             // If t > _total_duration, return final time of last spline.
-            return std::make_pair(static_cast<int>(_splines.size() - 1), _splines.back()->duration());
+            return std::make_pair(static_cast<size_t>(_splines.size() - 1), _splines.back()->duration());
         }
 
         inline void generate_trajectory_from_points(const Vector& knot_points, const Vector& times, SplineType type)
@@ -171,7 +158,7 @@ namespace rspl {
                 // Break up knot_points and .
                 for (size_t i = 0; i < num_splines; ++i) {
                     Eigen::VectorXd spline_knots = knot_points.segment(i * 2 * _dim, 4 * _dim);
-                    double dt = times(i);
+                    Time dt = times(i);
                     _splines.push_back(std::make_shared<_Spline>(spline_knots, dt));
                 }
                 break;
@@ -200,9 +187,9 @@ namespace rspl {
 
     protected:
         static constexpr double _epsilon = 1e-12;
+        const SplineType _spline_type;
+        const size_t _dim;
         const size_t _num_vars_total{0};
-        SplineType _spline_type;
-        size_t _dim;
 
         double _total_duration;
         std::vector<SplinePtr> _splines;
