@@ -73,6 +73,21 @@ namespace rspl {
             return _splines[idx]->acc(t_norm);
         }
 
+        std::pair<SplineIndex, Jacobian> jac_block(Time t, size_t order) const
+        {
+            switch (order) {
+            case 0:
+                return jac_block_pos(t);
+            case 1:
+                return jac_block_vel(t);
+            case 2:
+                return jac_block_acc(t);
+            default:
+                std::cerr << "Invalid derivative order!" << std::endl;
+                return std::make_pair(0, Jacobian());
+            }
+        }
+
         std::pair<SplineIndex, Jacobian> jac_block_pos(Time t) const
         {
             std::pair<SplineIndex, Time> pair = normalise_time(t);
@@ -80,7 +95,6 @@ namespace rspl {
             Time t_norm = pair.second;
 
             Jacobian spline_jac = _splines[idx]->jac_block_pos(t_norm);
-            std::cout << "Jac Rows, Cols:" << spline_jac.rows() << ", " << spline_jac.cols() << std::endl;
 
             size_t col_offset = jac_column_offset(_spline_type);
             Jacobian jac(_num_vars_total, _dim);
