@@ -24,6 +24,10 @@ namespace rspl {
             generate_trajectory_from_points(knot_points, times, _spline_type);
         }
 
+        void reset(const Vector& knot_points, const Vector& times)
+        {
+        }
+
         inline VecD evaluate(double t, size_t order)
         {
             switch (order) {
@@ -121,9 +125,10 @@ namespace rspl {
 
         std::vector<SplinePtr>& splines() { return _splines; }
 
-        SplinePtr spline(size_t idx) { return _splines[idx]; }
+        SplinePtr spline(size_t idx) const { return _splines[idx]; }
 
         inline size_t dim() const { return _dim; }
+        inline size_t num_knot_points() const { return _NumKnots; }
 
         inline double total_duration() const { return _total_duration; }
 

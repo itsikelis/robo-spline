@@ -24,46 +24,72 @@ Eigen::VectorXd random_uniform_vector(size_t rows, double lower, double upper)
     return rand;
 }
 
-bool test_duration()
+// Test calculated .
+template <typename _Traj>
+bool test_duration(const _Traj& traj, const Eigen::VectorXd& times)
 {
-    static constexpr size_t NumKnotPoints = 5;
-    static constexpr size_t Dim = 3;
     std::cout << "Trajectory Duration Test" << std::endl;
-    // for (size_t i = 0; i < static_cast<size_t>(times.rows()); ++i) {
 
-    std::uniform_real_distribution<double> unif_knots(-10., 10.);
-    std::uniform_real_distribution<double> unif_time(0., 3.);
-    std::default_random_engine re;
-    re.seed(time(0));
+    std::cout << "Duration 1, Duration 2 " << std::endl;
+    std::cout << times.sum() << ", " << traj.total_duration() << " (these should be approx. equal)" << std::endl;
 
-    // const size_t dim = _Traj.dim();
+    const double eps = 1e-12;
+    return (std::abs(times.sum() - traj.total_duration()) < eps);
+}
+
+// Test pos and vel at knot points are approximately equal.
+template <typename _Traj>
+bool test_splines(const _Traj& traj)
+{
+    bool flag = true;
+    const double eps = 1e-12;
+
+    for (size_t deriv_order = 0; deriv_order < 2; ++deriv_order) {
+        for (size_t i = 0; i < traj.num_knot_points() - 2; i++) {
+            double T = traj.spline(i)->duration();
+            auto pos1 = traj.spline(i)->evaluate(T, deriv_order);
+            auto pos2 = traj.spline(i + 1)->evaluate(0., deriv_order);
+            auto res = std::abs((pos1 - pos2).norm());
+            if (res > eps)
+                flag = false;
+        }
+    }
+
+    return flag;
+}
+
+template <typenmae _Traj>
+bool test_jacobians(const _Traj& traj)
+{
+    
+}
+
+static constexpr size_t NumKnotPoints = 5;
+static constexpr size_t Dim = 3;
+
+int main()
+{
+    srand(static_cast<size_t>(time(0)));
 
     Eigen::VectorXd knots = random_uniform_vector(NumKnotPoints * 2 * Dim, -10., 10.);
     Eigen::VectorXd times = random_uniform_vector(NumKnotPoints - 1, 0., 3.);
 
     rspl::Trajectory<rspl::CubicHermiteSpline<Dim>, NumKnotPoints> traj(knots, times);
 
-    std::cout << "Duration 1, Duration 2 " << std::endl;
-    std::cout << times.sum() << ", " << traj.total_duration() << " (these should be approx. equal)" << std::endl;
+    if (!test_duration(traj, times)) {
+        std::cerr << "Test Failed: test_duration" << std::endl;
+        return -1;
+    }
 
-    double eps = 1e-12;
-    return (std::abs(times.sum() - traj.total_duration()) < eps);
-}
-
-int main()
-{
-    srand(static_cast<unsigned int>(time(0)));
-
-    rspl::Trajectory<rspl::CubicHermiteSpline<3>, 2> traj1;
-
-    rspl::Trajectory<rspl::CubicHermiteSpline<2>, 2> traj2;
-
-    std::cout << traj1.dim() << ", " << traj2.dim() << std::endl;
+    if (!test_splines(traj)) {
+        std::cerr << "Test Failed: test_splines" << std::endl;
+        return -1;
+    }
 
     // std::cout << "Positions:" << std::endl;
     // for (double t = 0.; t <= (total_duration + 1e-6); t += 0.1) {
     //     std::cout << t << ": " << traj.position(t).transpose() << std::endl;
-    // }3
+    // }
 
     // std::cout << "Velocities:" << std::endl;
     // for (double t = 0.; t <= (total_duration + 1e-6); t += 0.1) {
@@ -73,29 +99,6 @@ int main()
     // std::cout << "Accelerations:" << std::endl;
     // for (double t = 0.; t <= (total_duration + 1e-6); t += 0.1) {
     //     std::cout << t << ": " << traj.acceleration(t).transpose() << std::endl;
-    // }
-
-    // auto splines = traj.splines();
-
-    // // These should be equal.
-    // std::cout << "Compare Positions:" << std::endl;
-    // for (size_t i = 0; i < splines.size() - 1; i++) {
-    //     std::cout << i << ": " << splines[i]->positions(1.).transpose() << std::endl;
-    //     std::cout << (i + 1) << ": " << splines[i + 1]->positions(0.).transpose() << std::endl;
-    // }
-
-    // // These should be equal.
-    // std::cout << "Compare Velocities:" << std::endl;
-    // for (size_t i = 0; i < splines.size() - 1; i++) {
-    //     std::cout << i << ": " << splines[i]->velocity(1.).transpose() << std::endl;
-    //     std::cout << (i + 1) << ": " << splines[i + 1]->velocity(0.).transpose() << std::endl;
-    // }
-
-    // // These should be inequal.
-    // std::cout << "Compare Accelerations:" << std::endl;
-    // for (size_t i = 0; i < splines.size() - 1; i++) {
-    //     std::cout << i << ": " << splines[i]->acceleration(1.).transpose() << std::endl;
-    //     std::cout << (i + 1) << ": " << splines[i + 1]->acceleration(0.).transpose() << std::endl;
     // }
 
     // std::cout << "Derivatives:" << std::endl;
@@ -173,7 +176,8 @@ int main()
 
     // std::cout << "Absolute norm of difference: (eps: " << eps << ")" << std::endl;
     // std::cout << abs((jac_pos - jac_pos_est).norm()) << std::endl;
-    test_duration();
+
+    std::cout << "All tests successful!" << std::endl;
 
     return 0;
 }
