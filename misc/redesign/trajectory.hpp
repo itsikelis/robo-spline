@@ -26,6 +26,8 @@ namespace rspl {
 
         void reset(const Vector& knot_points, const Vector& times)
         {
+            _splines.clear();
+            _total_duration = 0.;
         }
 
         inline VecD evaluate(double t, size_t order) const

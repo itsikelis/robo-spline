@@ -1,5 +1,6 @@
 #include "hermite_spline.hpp"
 #include <cstdint>
+#include <iostream>
 
 namespace rspl {
 
@@ -8,6 +9,7 @@ namespace rspl {
     public:
         using VecD = typename rspl::HermiteSpline<_Dim>::VecD;
         static const SplineType Type = SplineType::CubicHermite;
+        static const size_t Order = 3;
         CubicHermiteSpline() = default;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)

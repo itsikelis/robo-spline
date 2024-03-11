@@ -13,11 +13,20 @@ project(
 # Include Eigen.
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-add_executable(main main.cpp)
+add_executable(test_regular test_regular.cpp)
 # add_executable(main2 main2.cpp)
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PUBLIC Eigen3::Eigen)
+target_compile_features(test_regular PRIVATE cxx_std_17)
+target_link_libraries(test_regular PUBLIC Eigen3::Eigen)
 
 # Set compiler flags.
-target_compile_features(main PRIVATE cxx_std_17)
-target_compile_options(main PRIVATE "-Wall;-Wextra;-O3") #-Werror;
+target_compile_features(test_regular PRIVATE cxx_std_17)
+target_compile_options(test_regular PRIVATE "-Wall;-Wextra;-O3") #-Werror;
+
+add_executable(test_phased test_phased.cpp)
+# add_executable(main2 main2.cpp)
+target_compile_features(test_phased PRIVATE cxx_std_17)
+target_link_libraries(test_phased PUBLIC Eigen3::Eigen)
+
+# Set compiler flags.
+target_compile_features(test_phased PRIVATE cxx_std_17)
+target_compile_options(test_phased PRIVATE "-Wall;-Wextra;-O3") #-Werror;
