@@ -28,7 +28,7 @@ namespace rspl {
         {
         }
 
-        inline VecD evaluate(double t, size_t order)
+        inline VecD evaluate(double t, size_t order) const
         {
             switch (order) {
             case 0:
@@ -151,8 +151,8 @@ namespace rspl {
     protected:
         std::pair<SplineIndex, Time> normalise_time(Time t) const
         {
-            double sum = 0;
-            double prev_sum = 0;
+            double sum = 0.;
+            double prev_sum = 0.;
             size_t iters = _splines.size();
             for (size_t i = 0; i < iters; ++i) {
                 sum += _splines[i]->duration();
