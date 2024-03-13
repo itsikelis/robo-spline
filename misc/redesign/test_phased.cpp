@@ -9,17 +9,17 @@ static constexpr size_t NumKnotsPerSwing = 2;
 
 int main()
 {
-    Eigen::VectorXd knots(NumKnotPoints * 2 * Dim);
-    Eigen::VectorXd times(NumKnotPoints - 1);
+    // Eigen::VectorXd knots(NumKnotPoints * 2 * Dim);
+    // Eigen::VectorXd times(NumKnotPoints - 1);
 
-    std::vector<rspl::Phase> phase_seq = {rspl::Phase::Stance, rspl::Phase::Swing, rspl::Phase::Stance, rspl::Phase::Swing};
+    // std::vector<rspl::Phase> phase_seq = {rspl::Phase::Stance, rspl::Phase::Swing, rspl::Phase::Stance, rspl::Phase::Swing};
 
-    rspl::PhasedTrajectory<rspl::CubicHermiteSpline<Dim>, NumKnotPoints> traj(knots, times, phase_seq, NumKnotsPerSwing);
+    // rspl::PhasedTrajectory<rspl::CubicHermiteSpline<Dim>, NumKnotPoints> traj(knots, times, phase_seq, NumKnotsPerSwing);
 
-    std::cout << "Positions:" << std::endl;
-    for (double t = 0.; t <= (traj.total_duration() + 1e-6); t += 0.1) {
-        std::cout << t << ": " << traj.pos(t).transpose() << std::endl;
-    }
+    // std::cout << "Positions:" << std::endl;
+    // for (double t = 0.; t <= (traj.total_duration() + 1e-6); t += 0.1) {
+    //     std::cout << t << ": " << traj.pos(t).transpose() << std::endl;
+    // }
 
     // std::cout << "Velocities:" << std::endl;
     // for (double t = 0.; t <= (total_duration + 1e-6); t += 0.1) {

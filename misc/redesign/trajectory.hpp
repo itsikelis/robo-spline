@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -6,29 +8,37 @@
 #include "types.hpp"
 
 namespace rspl {
-    template <typename _Spline, size_t _NumKnots>
+
+    template <size_t _Dim>
     class Trajectory {
     public:
-        using VecD = typename _Spline::VecD;
-        using SplinePtr = std::shared_ptr<_Spline>;
+        using VecD = typename CubicHermiteSpline<_Dim>::VecD;
+        using Spline = CubicHermiteSpline<_Dim>;
 
     public:
-        Trajectory() : _spline_type(_Spline::Type), _dim(_Spline::Dim), _total_duration(-1.) {}
-
-        Trajectory(const Vector& knot_points, const Vector& times) : _spline_type(_Spline::Type), _dim(_Spline::Dim), _num_vars_total(knot_points.rows()), _total_duration(times.sum())
+        Trajectory(const Vector& knot_points, const Vector& times) : _total_duration(times.sum()), _num_vars_total(knot_points.rows()), _num_knot_points(_num_vars_total / (2 * _Dim))
         {
-            // TODO:
-            // assert knot_points and times size are correct.
-            // assert NumKnots - 1 == times.size()
+            const size_t num_splines = _num_knot_points - 1;
 
-            generate_trajectory_from_points(knot_points, times, _spline_type);
+            for (size_t i = 0; i < num_splines; ++i) {
+                Eigen::VectorXd spline_knots = knot_points.segment(i * 2 * _Dim, 4 * _Dim);
+                Time dt = times[i];
+                _splines.push_back(std::make_shared<Spline>(spline_knots, dt));
+            }
         }
 
-        void reset(const Vector& knot_points, const Vector& times)
+        ~Trajectory() { _splines.clear(); };
+
+        void clear()
         {
             _splines.clear();
             _total_duration = 0.;
         }
+
+        inline size_t dim() const { return _Dim; }
+        inline std::shared_ptr<Spline> spline(size_t idx) const { return _splines[idx]; }
+        inline size_t num_knot_points() const { return _num_knot_points; }
+        inline double total_duration() const { return _total_duration; }
 
         inline VecD evaluate(double t, size_t order) const
         {
@@ -46,7 +56,7 @@ namespace rspl {
         }
 
         // @brief Get position at time t.
-        VecD pos(Time t) const
+        inline VecD pos(Time t) const
         {
             std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
@@ -56,7 +66,7 @@ namespace rspl {
         }
 
         // @brief Get velocity at time t.
-        VecD vel(Time t) const
+        inline VecD vel(Time t) const
         {
             std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
@@ -66,7 +76,7 @@ namespace rspl {
         }
 
         // @brief Get acceleration at time t.
-        VecD acc(Time t) const
+        inline VecD acc(Time t) const
         {
             std::pair<SplineIndex, Time> pair = normalise_time(t);
             SplineIndex idx = pair.first;
@@ -98,9 +108,8 @@ namespace rspl {
 
             Jacobian spline_jac = _splines[idx]->jac_block_pos(t_norm);
 
-            size_t col_offset = jac_column_offset(_spline_type);
-            Jacobian jac(_num_vars_total, _dim);
-            jac.middleRows(idx * _dim * col_offset, spline_jac.cols()) = spline_jac.transpose();
+            Jacobian jac(_num_vars_total, _Dim);
+            jac.middleRows(idx * 2 * _Dim, spline_jac.cols()) = spline_jac.transpose();
 
             return std::make_pair(idx, jac.transpose());
         }
@@ -113,8 +122,8 @@ namespace rspl {
 
             Jacobian spline_jac = _splines[idx]->jac_block_vel(t_norm);
 
-            Jacobian jac(_num_vars_total, _dim);
-            jac.middleRows(idx * 2 * _dim, spline_jac.cols()) = spline_jac.transpose();
+            Jacobian jac(_num_vars_total, _Dim);
+            jac.middleRows(idx * 2 * _Dim, spline_jac.cols()) = spline_jac.transpose();
 
             return std::make_pair(idx, jac.transpose());
         }
@@ -127,28 +136,11 @@ namespace rspl {
 
             Jacobian spline_jac = _splines[idx]->jac_block_acc(t_norm);
 
-            Jacobian jac(_num_vars_total, _dim);
-            jac.middleRows(idx * 2 * _dim, spline_jac.cols()) = spline_jac.transpose();
+            Jacobian jac(_num_vars_total, _Dim);
+            jac.middleRows(idx * 2 * _Dim, spline_jac.cols()) = spline_jac.transpose();
 
             return std::make_pair(idx, jac.transpose());
         }
-
-        void clear()
-        {
-            _splines.clear();
-            _total_duration = -1.;
-        }
-
-        std::vector<SplinePtr>& splines() { return _splines; }
-
-        SplinePtr spline(size_t idx) const { return _splines[idx]; }
-
-        inline size_t dim() const { return _dim; }
-        inline size_t num_knot_points() const { return _NumKnots; }
-
-        inline double total_duration() const { return _total_duration; }
-
-        ~Trajectory() { _splines.clear(); };
 
     protected:
         std::pair<SplineIndex, Time> normalise_time(Time t) const
@@ -171,48 +163,12 @@ namespace rspl {
             return std::make_pair(static_cast<size_t>(_splines.size() - 1), _splines.back()->duration());
         }
 
-        inline void generate_trajectory_from_points(const Vector& knot_points, const Vector& times, SplineType type)
-        {
-            const size_t num_splines = _NumKnots - 1;
-            switch (type) {
-            case SplineType::CubicHermite:
-                // Break up knot_points and .
-                for (size_t i = 0; i < num_splines; ++i) {
-                    Eigen::VectorXd spline_knots = knot_points.segment(i * 2 * _dim, 4 * _dim);
-                    Time dt = times(i);
-                    _splines.push_back(std::make_shared<_Spline>(spline_knots, dt));
-                }
-                break;
-            case SplineType::QuinticHermite:
-                // Add points in quintic hermite spline.
-                break;
-            default:
-                std::cerr << "Error, unsuported spline type!" << std::endl;
-                break;
-            }
-        }
-
-        inline size_t jac_column_offset(SplineType type) const
-        {
-            if (type == SplineType::CubicHermite) {
-                return 2;
-            }
-            else if (type == SplineType::QuinticHermite) {
-                return 3;
-            }
-            else {
-                std::cerr << "Wrong Spline Type" << std::endl;
-                return 2;
-            }
-        }
-
     protected:
         static constexpr double _epsilon = 1e-12;
-        const SplineType _spline_type;
-        const size_t _dim;
-        const size_t _num_vars_total{0};
 
-        double _total_duration;
-        std::vector<SplinePtr> _splines;
+        const double _total_duration;
+        const size_t _num_vars_total;
+        const size_t _num_knot_points;
+        std::vector<std::shared_ptr<Spline>> _splines;
     };
 } // namespace rspl

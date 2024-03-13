@@ -8,8 +8,6 @@ namespace rspl {
     class CubicHermiteSpline : public HermiteSpline<_Dim> {
     public:
         using VecD = typename rspl::HermiteSpline<_Dim>::VecD;
-        static const SplineType Type = SplineType::CubicHermite;
-        static const size_t Order = 3;
         CubicHermiteSpline() = default;
 
         CubicHermiteSpline(const Vector& knot_points, Time duration) : _T(duration)
@@ -23,11 +21,7 @@ namespace rspl {
             calc_coeffs_from_knot_points();
         }
 
-        inline size_t order() const override { return 3; }
-        inline SplineType type() const override { return _type; }
-
         inline size_t dim() const override { return _Dim; }
-
         inline Time duration() const override { return _T; }
 
         VecD evaluate(Time t, size_t order) const override
@@ -192,8 +186,6 @@ namespace rspl {
         }
 
     private:
-        const SplineType _type{SplineType::CubicHermite};
-
         // Initial and final knot points.
         VecD _p0;
         VecD _v0;
