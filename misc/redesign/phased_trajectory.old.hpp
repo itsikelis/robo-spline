@@ -76,7 +76,7 @@ namespace rspl {
             }
         }
 
-        void reset(const Vector& knot_points, const Vector& times)
+        void clear(const Vector& knot_points, const Vector& times)
         {
             _splines.clear();
             _total_duration = 0.;

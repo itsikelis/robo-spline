@@ -14,12 +14,6 @@ namespace rspl {
         Swing,
     };
 
-    struct PhasedTuple {
-        SplineIndex spline_idx;
-        Phase phase;
-        Time time_norm;
-    };
-
     template <size_t _Dim>
     class PhasedTrajectory {
     public:
@@ -28,11 +22,10 @@ namespace rspl {
 
     public:
         PhasedTrajectory(const Vector& knot_points, const Vector& phase_times, const std::vector<Phase>& phase_sequence, size_t knots_per_swing)
-            : _phase_sequence(phase_sequence), _num_knots_per_swing(knots_per_swing)
+            : _phase_sequence(phase_sequence), _num_knots_per_swing(knots_per_swing), _total_duration(phase_times.sum())
         {
             size_t k_idx = 0; // knot_points index
             size_t t_idx = 0; // times index
-            Time t;
             for (auto& phase : phase_sequence) {
                 if (phase == Phase::Stance) {
                     VecD pos = knot_points.segment(k_idx, _Dim);
@@ -40,29 +33,31 @@ namespace rspl {
                     Vector spline_knots(4 * _Dim);
                     spline_knots << pos, vel, pos, vel;
 
-                    t = phase_times[t_idx];
+                    Time t = phase_times[t_idx];
 
                     _splines.push_back(std::make_shared<Spline>(spline_knots, t));
 
-                    k_idx += _Dim;
+                    // k_idx += _Dim;
                     t_idx += 1;
                 }
                 else {
                     // If curr_phase == Phase::Swing
+                    Time t = phase_times[t_idx] / static_cast<double>(_num_knots_per_swing + 1);
+
                     // Add initial point (from stance to swing)
                     VecD pos0 = knot_points.segment(k_idx, _Dim);
+                    std::cout << "pos0: " << pos0.transpose() << "#";
                     VecD vel0 = VecD::Zero();
                     VecD pos1 = knot_points.segment(k_idx + _Dim, _Dim);
                     VecD vel1 = knot_points.segment(k_idx + 2 * _Dim, _Dim);
                     Vector spline_knots(4 * _Dim);
                     spline_knots << pos0, vel0, pos1, vel1;
-                    t = phase_times[t_idx];
 
                     _splines.push_back(std::make_shared<Spline>(spline_knots, t));
                     k_idx += _Dim;
-                    t_idx++;
+
                     // Add in-between spline points
-                    for (size_t i = 1; i < _num_knots_per_swing - 1; ++i) {
+                    for (size_t i = 0; i < _num_knots_per_swing - 1; ++i) {
 
                         pos0 = knot_points.segment(k_idx, _Dim);
                         vel0 = knot_points.segment(k_idx + _Dim, _Dim);
@@ -70,11 +65,9 @@ namespace rspl {
                         vel1 = knot_points.segment(k_idx + 3 * _Dim, _Dim);
                         Vector spline_knots(4 * _Dim);
                         spline_knots << pos0, vel0, pos1, vel1;
-                        t = phase_times[t_idx];
 
                         _splines.push_back(std::make_shared<Spline>(spline_knots, t));
                         k_idx += 2 * _Dim;
-                        t_idx++;
                     }
                     // Add last swing knot (swing to stance)
                     pos0 = knot_points.segment(k_idx, _Dim);
@@ -83,7 +76,6 @@ namespace rspl {
                     vel1 = VecD::Zero();
                     // Vector spline_knots(4 * _Dim);
                     spline_knots << pos0, vel0, pos1, vel1;
-                    t = phase_times[t_idx];
 
                     k_idx += 2 * _Dim;
                     t_idx++;
@@ -102,7 +94,7 @@ namespace rspl {
         // inline size_t dim() const { return _Dim; }
         // inline std::shared_ptr<Spline> spline(size_t idx) const { return _splines[idx]; }
         // inline size_t num_knot_points() const { return _num_knot_points; }
-        // inline double total_duration() const { return _total_duration; }
+        inline double total_duration() const { return _total_duration; }
 
         inline VecD evaluate(double t, size_t order) const
         {
@@ -149,6 +141,20 @@ namespace rspl {
             return _splines[idx]->acc(t_norm);
         }
 
+        Jacobian jac_block_pos(Time t) const
+        {
+            std::pair<SplineIndex, Time> pair = normalise_time(t);
+            SplineIndex idx = pair.first;
+            Time t_norm = pair.second;
+
+            Jacobian spline_jac = _splines[idx]->jac_block_pos(t_norm);
+
+            Jacobian jac(_num_vars_total, _Dim);
+            jac.middleRows(idx * 2 * _Dim, spline_jac.cols()) = spline_jac.transpose();
+
+            return std::make_pair(idx, jac.transpose());
+        }
+
     protected:
         std::pair<SplineIndex, Time> normalise_time(Time t) const
         {
@@ -171,11 +177,11 @@ namespace rspl {
         }
 
     protected:
-        static constexpr double _epsilon = 1e-12;
+        static constexpr double _epsilon{1e-12};
         const std::vector<Phase> _phase_sequence;
         const size_t _num_knots_per_swing;
 
-        double _total_duration;
-        std::vector<Spline> _splines;
+        double _total_duration{0.};
+        std::vector<std::shared_ptr<Spline>> _splines;
     };
 } // namespace rspl
